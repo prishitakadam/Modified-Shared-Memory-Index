@@ -158,7 +158,7 @@ class In_Use_Array{
     //   in_use_[i] = false;
     // }
     for(size_t i=0; i<element_size_; ++i){
-      in_use_->push(i)
+      in_use_->push(i);
     }
 
   }
@@ -220,7 +220,9 @@ int allocate_memory_slot(){
 bool deallocate_memory_slot(int index) {
     //USE LOCK
     in_use_->push(index);
-
+    
+    //CHANGE
+    return true;
     //return something
 
   }

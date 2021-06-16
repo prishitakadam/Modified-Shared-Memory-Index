@@ -158,7 +158,7 @@ class In_Use_Array{
     //   in_use_[i] = false;
     // }
     for(size_t i=0; i<element_size_; ++i){
-      in_use_.push(i)
+      in_use_->push(i)
     }
 
   }
@@ -196,10 +196,10 @@ class In_Use_Array{
 //   }
 
 int allocate_memory_slot(){
-    if(!in_use_.empty()){
-      int index = in_use_.front();
+    if(!in_use_->empty()){
+      int index = in_use_->front();
       //USE LOCK
-      in_use_.pop();
+      in_use_->pop();
       return index;
     }
     else{
@@ -219,7 +219,7 @@ int allocate_memory_slot(){
 
 bool deallocate_memory_slot(int index) {
     //USE LOCK
-    in_use_.push(index);
+    in_use_->push(index);
 
     //return something
 

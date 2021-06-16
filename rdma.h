@@ -36,6 +36,7 @@
 #include <map>
 #include <vector>
 #include <thread_local.h>
+#include<queue>
 //#include <util/thread_local.h>
 //#ifdef __cplusplus
 //extern "C" { //only need to export C interface if
@@ -150,45 +151,80 @@ class In_Use_Array{
  public:
   In_Use_Array(size_t size, size_t chunk_size, ibv_mr* mr_ori)
       : element_size_(size), chunk_size_(chunk_size), mr_ori_(mr_ori){
-    in_use_ = new std::atomic<bool>[element_size_];
-    for (size_t i = 0; i < element_size_; ++i){
-      in_use_[i] = false;
+    // in_use_ = new std::atomic<bool>[element_size_];
+    in_use_ = new std::queue<int>;
+    //OLD
+    // for (size_t i = 0; i < element_size_; ++i){
+    //   in_use_[i] = false;
+    // }
+    for(size_t i=0; i<element_size_; ++i){
+      in_use_.push(i)
     }
 
   }
-  In_Use_Array(size_t size, size_t chunk_size, ibv_mr* mr_ori, std::atomic<bool>* in_use)
+  //OLD
+  // In_Use_Array(size_t size, size_t chunk_size, ibv_mr* mr_ori, std::atomic<bool>* in_use)
+  //     : element_size_(size), chunk_size_(chunk_size), in_use_(in_use), mr_ori_(mr_ori){
+
+  // }
+  In_Use_Array(size_t size, size_t chunk_size, ibv_mr* mr_ori, std::queue<int>* in_use)
       : element_size_(size), chunk_size_(chunk_size), in_use_(in_use), mr_ori_(mr_ori){
 
   }
-  int allocate_memory_slot(){
-    for (int i = 0; i < static_cast<int>(element_size_); ++i){
-//      auto start = std::chrono::high_resolution_clock::now();
-      bool temp = in_use_[i];
-      if (temp == false) {
-//        auto stop = std::chrono::high_resolution_clock::now();
-//        auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(stop - start);
-//        std::printf("Compare and swap time duration is %ld \n", duration.count());
-        if(in_use_[i].compare_exchange_strong(temp, true)){
-//          std::cout << "chunk" <<i << "was changed to true" << std::endl;
 
-          return i; // find the empty slot then return the index for the slot
+//OLD ALLOCATE
+//   int allocate_memory_slot(){
+//     for (int i = 0; i < static_cast<int>(element_size_); ++i){
+// //      auto start = std::chrono::high_resolution_clock::now();
+//       bool temp = in_use_[i];
+//       if (temp == false) {
+// //        auto stop = std::chrono::high_resolution_clock::now();
+// //        auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(stop - start);
+// //        std::printf("Compare and swap time duration is %ld \n", duration.count());
+//         if(in_use_[i].compare_exchange_strong(temp, true)){
+// //          std::cout << "chunk" <<i << "was changed to true" << std::endl;
 
-        }
-//        else
-//          std::cout << "Compare and swap fail" << "i equals" << i  << "type is" << type_ << std::endl;
-      }
+//           return i; // find the empty slot then return the index for the slot
 
+//         }
+// //        else
+// //          std::cout << "Compare and swap fail" << "i equals" << i  << "type is" << type_ << std::endl;
+//       }
+
+//     }
+//     return -1; //Not find the empty memory chunk.
+//   }
+
+int allocate_memory_slot(){
+    if(!in_use_.empty()){
+      int index = in_use_.front();
+      //USE LOCK
+      in_use_.pop();
+      return index;
     }
-    return -1; //Not find the empty memory chunk.
+    else{
+      return -1;
+    }
   }
-  bool deallocate_memory_slot(int index) {
-    bool temp = true;
-    assert(in_use_[index] == true);
-//    std::cout << "chunk" <<index << "was changed to false" << std::endl;
 
-    return in_use_[index].compare_exchange_strong(temp, false);
+//OLD DEALLOCATE
+//   bool deallocate_memory_slot(int index) {
+//     bool temp = true;
+//     assert(in_use_[index] == true);
+// //    std::cout << "chunk" <<index << "was changed to false" << std::endl;
+
+//     return in_use_[index].compare_exchange_strong(temp, false);
+
+//   }
+
+bool deallocate_memory_slot(int index) {
+    //USE LOCK
+    in_use_.push(index);
+
+    //return something
 
   }
+
   size_t get_chunk_size(){
     return chunk_size_;
   }
@@ -198,7 +234,11 @@ class In_Use_Array{
   size_t get_element_size(){
     return element_size_;
   }
-  std::atomic<bool>* get_inuse_table(){
+  //OLD
+  // std::atomic<bool>* get_inuse_table(){
+  //   return in_use_;
+  // }
+   std::queue<int>* get_inuse_table(){
     return in_use_;
   }
 //  void deserialization(char*& temp, int& size){
@@ -208,7 +248,9 @@ class In_Use_Array{
  private:
   size_t element_size_;
   size_t chunk_size_;
-  std::atomic<bool>* in_use_;
+  //OLD
+  // std::atomic<bool>* in_use_;
+  std::queue<int>* in_use_;
   ibv_mr* mr_ori_;
 //  int type_;
 };

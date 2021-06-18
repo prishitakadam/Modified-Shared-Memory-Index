@@ -117,7 +117,7 @@ int main()
     for (size_t i = 0; i < thread_num; i++){
     //        SST_Metadata* sst_meta;
 
-        for(size_t j= 0; j< 1; j++){
+        for(size_t j= 0; j< 2; j++){
             rdma_manager->Allocate_Remote_RDMA_Slot(RDMA_remote_chunks[i][j]);
 
             rdma_manager->Allocate_Local_RDMA_Slot(RDMA_local_chunks[i][j], std::string("test"));

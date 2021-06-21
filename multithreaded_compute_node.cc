@@ -1,14 +1,16 @@
 #include <iostream>
 #include "rdma.h"
 //global values for the test
-bool test_start = false;
-size_t thread_ready_num = 0;
-size_t thread_finish_num = 0;
-size_t thread_num;
-std::mutex startmtx;
-std::mutex finishmtx;
-std::condition_variable cv;
 
+size_t thread_num;
+
+bool mem_test_start = false;
+size_t mem_thread_ready_num = 0;
+size_t mem_thread_finish_num = 0;
+size_t mem_thread_num;
+std::mutex mem_startmtx;
+std::mutex mem_finishmtx;
+std::condition_variable mem_cv;
 
 void
 client_thread(RDMA_Manager *rdma_manager, int iteration, ibv_mr **local_mr_pointer, ibv_mr **remote_mr, size_t msg_size,
@@ -51,6 +53,85 @@ client_thread(RDMA_Manager *rdma_manager, int iteration, ibv_mr **local_mr_point
         cv.notify_all();
     }
     lck_end.unlock();
+}
+
+void mulithreaded_allocations(RDMA_Manager *rdma_manager, size_t msg_size, int r_w){
+    std::unique_lock<std::mutex> mem_lck_start(mem_startmtx);
+    
+    size_t thread_ready_num = 0;
+    size_t thread_finish_num = 0;
+    std::mutex startmtx;
+    std::mutex finishmtx;
+    bool test_start = false;
+    std::condition_variable cv;
+    ibv_mr* RDMA_local_chunks[thread_num][10];
+    ibv_mr* RDMA_remote_chunks[thread_num][10];
+    int iteration = 100;
+    long int starts;
+    long int ends;
+    
+
+    std::thread* thread_object[thread_num];
+    mem_thread_ready_num++;
+    if (mem_thread_ready_num >= mem_thread_num) {
+        mem_cv.notify_all();
+    }
+    while (!mem_test_start) {
+        mem_cv.wait(mem_lck_start);
+
+    }
+    mem_lck_start.unlock();
+    for (size_t i = 0; i < thread_num; i++){
+    //        SST_Metadata* sst_meta;
+        for(size_t j= 0; j< 1; j++){
+            rdma_manager->Allocate_Remote_RDMA_Slot(RDMA_remote_chunks[i][j]);
+
+            rdma_manager->Allocate_Local_RDMA_Slot(RDMA_local_chunks[i][j], std::string("test"));
+            // size_t msg_size = read_block_size;
+            memset(RDMA_local_chunks[i][j]->addr,1,msg_size);
+        }
+
+    }
+    for(size_t i = 0; i < thread_num; i++)
+    {
+
+
+        thread_object[i] = new std::thread(client_thread, rdma_manager, iteration,
+                                           RDMA_local_chunks[i], RDMA_remote_chunks[i], msg_size, r_w);
+        thread_object[i]->detach();
+
+    }
+    std::unique_lock<std::mutex> l_s(startmtx);
+    while (thread_ready_num!= thread_num){
+        cv.wait(l_s);
+    }
+    test_start = true;
+    cv.notify_all();
+    // starts = std::chrono::high_resolution_clock::now().time_since_epoch().count();
+
+    l_s.unlock();
+    std::unique_lock<std::mutex> l_e(finishmtx);
+
+    while (thread_finish_num < thread_num) {
+        cv.wait(l_e);
+    }
+    // ends  = std::chrono::high_resolution_clock::now().time_since_epoch().count();
+    // printf("thread has finished.\n");
+    l_e.unlock();
+
+    std::unique_lock<std::mutex> mem_lck_end(mem_startmtx);
+    mem_thread_finish_num++;
+    if (mem_thread_finish_num >= mem_thread_num) {
+        mem_cv.notify_all();
+    }
+    mem_lck_end.unlock();
+    
+    // double bandwidth = ((double)read_block_size*thread_num*iteration) / (ends-starts) * 1000;
+    // double latency = ((double) (ends-starts)) / (thread_num * iteration);
+    // std::cout << (ends-starts) << std::endl;
+    // std::cout << "Size: " << read_block_size << "Bandwidth is " << bandwidth << "MB/s" << std::endl;
+    // std::cout << "Size: " << read_block_size << "Dummy latency is " << latency << "ns" << std::endl;
+
 }
 int main()
 {
@@ -107,56 +188,41 @@ int main()
 
     std::cout << "thread num:\r" << std::endl;
     std::cin >> thread_num;
+    std::cout << "Memory Thread Num:\r" << std::endl;
+    std::cin >> mem_thread_num;
     rdma_manager->Mempool_initialize(std::string("test"), read_block_size);
-    ibv_mr* RDMA_local_chunks[thread_num][10];
-    ibv_mr* RDMA_remote_chunks[thread_num][10];
-    int iteration = 100;
-    long int starts;
-    long int ends;
-    std::thread* thread_object[thread_num];
-    for (size_t i = 0; i < thread_num; i++){
-    //        SST_Metadata* sst_meta;
-        for(size_t j= 0; j< 1; j++){
-            rdma_manager->Allocate_Remote_RDMA_Slot(RDMA_remote_chunks[i][j]);
+    std::thread* mem_thread_object[mem_thread_num];
 
-            rdma_manager->Allocate_Local_RDMA_Slot(RDMA_local_chunks[i][j], std::string("test"));
-            size_t msg_size = read_block_size;
-            memset(RDMA_local_chunks[i][j]->addr,1,msg_size);
-        }
-
-    }
-    for(size_t i = 0; i < thread_num; i++)
+    for(size_t i = 0; i < mem_thread_num; i++)
     {
-
-
-        thread_object[i] = new std::thread(client_thread, rdma_manager, iteration,
-                                           RDMA_local_chunks[i], RDMA_remote_chunks[i], read_block_size, readorwrite);
-        thread_object[i]->detach();
+        mem_thread_object[i] = new std::thread(mulithreaded_allocations, rdma_manager, read_block_size, readorwrite);
+        mem_thread_object[i]->detach();
 
     }
-    std::unique_lock<std::mutex> l_s(startmtx);
-    while (thread_ready_num!= thread_num){
-        cv.wait(l_s);
+
+    std::unique_lock<std::mutex> m_l_s(mem_startmtx);
+    while (mem_thread_ready_num!= mem_thread_num){
+        mem_cv.wait(m_l_s);
     }
-    test_start = true;
+    mem_test_start = true;
     cv.notify_all();
     starts = std::chrono::high_resolution_clock::now().time_since_epoch().count();
 
-    l_s.unlock();
-    std::unique_lock<std::mutex> l_e(finishmtx);
+    m_l_s.unlock();
+    std::unique_lock<std::mutex> m_l_e(mem_finishmtx);
 
-    while (thread_finish_num < thread_num) {
-        cv.wait(l_e);
+    while (thread_finish_num < mem_thread_num) {
+        cv.wait(m_l_e);
     }
     ends  = std::chrono::high_resolution_clock::now().time_since_epoch().count();
-    printf("thread has finished.\n");
-    l_e.unlock();
+    printf("mem thread has finished.\n");
+    m_l_e.unlock();
     double bandwidth = ((double)read_block_size*thread_num*iteration) / (ends-starts) * 1000;
     double latency = ((double) (ends-starts)) / (thread_num * iteration);
     std::cout << (ends-starts) << std::endl;
     std::cout << "Size: " << read_block_size << "Bandwidth is " << bandwidth << "MB/s" << std::endl;
     std::cout << "Size: " << read_block_size << "Dummy latency is " << latency << "ns" << std::endl;
-
+    
 
     return 0;
 }

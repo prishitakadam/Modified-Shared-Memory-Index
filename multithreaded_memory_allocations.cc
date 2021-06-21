@@ -46,7 +46,7 @@ void mulithreaded_memory_allocations(RDMA_Manager *rdma_manager, size_t msg_size
 }
 
 int main(){
-    truct config_t config = {
+    struct config_t config = {
       NULL,  /* dev_name */
       NULL,  /* server_name */
       19875, /* tcp_port */

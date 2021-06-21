@@ -13,6 +13,8 @@ std::condition_variable mem_cv;
 
 void mulithreaded_memory_allocations(RDMA_Manager *rdma_manager, size_t msg_size){
     std::unique_lock<std::mutex> mem_lck_start(mem_startmtx);
+    rdma_manager->RDMA_Write(remote_mr[0], local_mr_pointer[0],
+                             msg_size, "", IBV_SEND_SIGNALED, 1);
     mem_thread_ready_num++;
     if (mem_thread_ready_num >= mem_thread_num) {
         mem_cv.notify_all();

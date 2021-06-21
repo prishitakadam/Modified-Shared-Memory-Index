@@ -71,15 +71,6 @@ void mulithreaded_allocations(RDMA_Manager *rdma_manager, size_t msg_size, int r
     
 
     std::thread* thread_object[thread_num];
-    mem_thread_ready_num++;
-    if (mem_thread_ready_num >= mem_thread_num) {
-        mem_cv.notify_all();
-    }
-    while (!mem_test_start) {
-        mem_cv.wait(mem_lck_start);
-
-    }
-    mem_lck_start.unlock();
     for (size_t i = 0; i < thread_num; i++){
     //        SST_Metadata* sst_meta;
         for(size_t j= 0; j< 1; j++){
@@ -100,6 +91,15 @@ void mulithreaded_allocations(RDMA_Manager *rdma_manager, size_t msg_size, int r
         thread_object[i]->detach();
 
     }
+    mem_thread_ready_num++;
+    if (mem_thread_ready_num >= mem_thread_num) {
+        mem_cv.notify_all();
+    }
+    while (!mem_test_start) {
+        mem_cv.wait(mem_lck_start);
+
+    }
+    mem_lck_start.unlock();
     std::unique_lock<std::mutex> l_s(startmtx);
     while (thread_ready_num!= thread_num){
         cv.wait(l_s);

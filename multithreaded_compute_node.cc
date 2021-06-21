@@ -3,6 +3,12 @@
 //global values for the test
 
 size_t thread_num;
+size_t thread_ready_num = 0;
+size_t thread_finish_num = 0;
+std::mutex startmtx;
+std::mutex finishmtx;
+bool test_start = false;
+std::condition_variable cv;
 
 bool mem_test_start = false;
 size_t mem_thread_ready_num = 0;
@@ -57,13 +63,6 @@ client_thread(RDMA_Manager *rdma_manager, int iteration, ibv_mr **local_mr_point
 
 void mulithreaded_allocations(RDMA_Manager *rdma_manager, size_t msg_size, int r_w){
     std::unique_lock<std::mutex> mem_lck_start(mem_startmtx);
-    
-    size_t thread_ready_num = 0;
-    size_t thread_finish_num = 0;
-    std::mutex startmtx;
-    std::mutex finishmtx;
-    bool test_start = false;
-    std::condition_variable cv;
     ibv_mr* RDMA_local_chunks[thread_num][10];
     ibv_mr* RDMA_remote_chunks[thread_num][10];
     int iteration = 100;

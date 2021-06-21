@@ -102,6 +102,9 @@ int main(){
 
     rdma_manager->Mempool_initialize(std::string("test"), read_block_size);
     std::thread* mem_thread_object[mem_thread_num];
+    long int starts;
+    long int ends;
+    int iteration = 100;
     for(size_t i = 0; i < mem_thread_num; i++){
         mem_thread_object[i] = new std::thread(mulithreaded_memory_allocations, rdma_manager, read_block_size);
         mem_thread_object[i]->detach();
@@ -116,7 +119,7 @@ int main(){
     starts = std::chrono::high_resolution_clock::now().time_since_epoch().count();
 
     mem_l_s.unlock();
-    std::unique_lock<std::mutex> l_e(mem_finishmtx);
+    std::unique_lock<std::mutex> mem_l_e(mem_finishmtx);
 
     while (mem_thread_finish_num < mem_thread_num) {
         mem_cv.wait(mem_l_e);

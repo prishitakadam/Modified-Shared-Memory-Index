@@ -205,7 +205,7 @@ int main()
     }
     mem_test_start = true;
     cv.notify_all();
-    starts = std::chrono::high_resolution_clock::now().time_since_epoch().count();
+    // starts = std::chrono::high_resolution_clock::now().time_since_epoch().count();
 
     m_l_s.unlock();
     std::unique_lock<std::mutex> m_l_e(mem_finishmtx);
@@ -213,14 +213,14 @@ int main()
     while (thread_finish_num < mem_thread_num) {
         cv.wait(m_l_e);
     }
-    ends  = std::chrono::high_resolution_clock::now().time_since_epoch().count();
+    // ends  = std::chrono::high_resolution_clock::now().time_since_epoch().count();
     printf("mem thread has finished.\n");
     m_l_e.unlock();
-    double bandwidth = ((double)read_block_size*thread_num*iteration) / (ends-starts) * 1000;
-    double latency = ((double) (ends-starts)) / (thread_num * iteration);
-    std::cout << (ends-starts) << std::endl;
-    std::cout << "Size: " << read_block_size << "Bandwidth is " << bandwidth << "MB/s" << std::endl;
-    std::cout << "Size: " << read_block_size << "Dummy latency is " << latency << "ns" << std::endl;
+    // double bandwidth = ((double)read_block_size*thread_num*iteration) / (ends-starts) * 1000;
+    // double latency = ((double) (ends-starts)) / (thread_num * iteration);
+    // std::cout << (ends-starts) << std::endl;
+    // std::cout << "Size: " << read_block_size << "Bandwidth is " << bandwidth << "MB/s" << std::endl;
+    // std::cout << "Size: " << read_block_size << "Dummy latency is " << latency << "ns" << std::endl;
     
 
     return 0;

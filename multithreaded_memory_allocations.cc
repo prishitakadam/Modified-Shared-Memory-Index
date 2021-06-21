@@ -13,8 +13,8 @@ std::condition_variable mem_cv;
 
 void mulithreaded_memory_allocations(RDMA_Manager *rdma_manager, size_t msg_size){
     std::unique_lock<std::mutex> mem_lck_start(mem_startmtx);
-
     mem_thread_ready_num++;
+    std::cout<<"\nCreated"<<mem_thread_ready_num;
     if (mem_thread_ready_num >= mem_thread_num) {
         mem_cv.notify_all();
     }
@@ -40,6 +40,7 @@ void mulithreaded_memory_allocations(RDMA_Manager *rdma_manager, size_t msg_size
 
     std::unique_lock<std::mutex> mem_lck_end(mem_startmtx);
     mem_thread_finish_num++;
+    std::cout<<"\nFinished"<<mem_thread_finish_num;
     if(mem_thread_finish_num >= mem_thread_num) {
         mem_cv.notify_all();
     }

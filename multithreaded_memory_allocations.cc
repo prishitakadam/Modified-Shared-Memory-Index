@@ -17,13 +17,15 @@ void mulithreaded_memory_allocations(RDMA_Manager *rdma_manager, size_t msg_size
     if (mem_thread_ready_num >= mem_thread_num) {
         mem_cv.notify_all();
     }
-    while (!test_start) {
+    while (!mem_test_start) {
         mem_cv.wait(mem_lck_start);
 
     }
 
     mem_lck_start.unlock();
-
+    
+    ibv_mr* RDMA_local_chunks[thread_num][10];
+    ibv_mr* RDMA_remote_chunks[thread_num][10];
     for (size_t i = 0; i < thread_num; i++){
         for(size_t j= 0; j< 1; j++){
             rdma_manager->Allocate_Remote_RDMA_Slot(RDMA_remote_chunks[i][j]);
@@ -35,7 +37,7 @@ void mulithreaded_memory_allocations(RDMA_Manager *rdma_manager, size_t msg_size
 
     }
 
-    std::unique_lock<std::mutex> mem_lck_end(startmtx);
+    std::unique_lock<std::mutex> mem_lck_end(mem_startmtx);
     mem_thread_finish_num++;
     if(mem_thread_finish_num >= mem_thread_num) {
         mem_cv.notify_all();

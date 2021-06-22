@@ -129,7 +129,7 @@ int main(){
     ends  = std::chrono::high_resolution_clock::now().time_since_epoch().count();
     printf("thread has finished.\n");
     mem_l_e.unlock();
-    double time = (mem_thread_num*thread_num)/(ends-starts)*1000;
+    double time = (ends-starts)*1000;
     // double bandwidth = ((double)read_block_size*thread_num*iteration) / (ends-starts) * 1000;
     // double latency = ((double) (ends-starts)) / (thread_num * iteration);
     std::cout <<"Time Taken "<< time << std::endl;

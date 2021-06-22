@@ -31,11 +31,11 @@ void mulithreaded_memory_allocations(RDMA_Manager *rdma_manager, size_t i, size_
     ibv_mr* RDMA_remote_chunks[thread_num][j_size+1];
     
     for(size_t j= 0; j< j_size; j++){//j should be bigger value
-        rdma_manager->Allocate_Remote_RDMA_Slot(RDMA_remote_chunks[j]);
+        rdma_manager->Allocate_Remote_RDMA_Slot(RDMA_remote_chunks[i][j]);
 
         rdma_manager->Allocate_Local_RDMA_Slot(RDMA_local_chunks[i][j], std::string("test"));
         // size_t msg_size = read_block_size;
-        memset(RDMA_local_chunks[j]->addr,1,msg_size);
+        memset(RDMA_local_chunks[i][j]->addr,1,msg_size);
     }
 
 

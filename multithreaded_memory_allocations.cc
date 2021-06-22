@@ -90,7 +90,7 @@ int main(){
 
 
 
-    printf("multiple threaded demo");
+    printf("multiple threaded demo\n");
     size_t read_block_size;
 
     //    std::cout << "block size:\r" << std::endl;
@@ -98,7 +98,7 @@ int main(){
     read_block_size = 1048576;
     //  table_size = read_block_size+64;
 
-    std::cout << "thread num:\r" << std::endl;
+    std::cout << "Thread Num:\r" << std::endl;
     std::cin >> thread_num;
 
     std::cout << "\nJ Size : \r" << std::endl;

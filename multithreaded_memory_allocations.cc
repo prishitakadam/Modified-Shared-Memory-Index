@@ -131,7 +131,7 @@ int main(){
     mem_l_e.unlock();
     // double bandwidth = ((double)read_block_size*thread_num*iteration) / (ends-starts) * 1000;
     // double latency = ((double) (ends-starts)) / (thread_num * iteration);
-    std::cout <<"Time Taken"<< (ends-starts) << std::endl;
+    std::cout <<"Time Taken"<< 1000000/(ends-starts) << std::endl;
     // std::cout << "Size: " << read_block_size << "Bandwidth is " << bandwidth << "MB/s" << std::endl;
     // std::cout << "Size: " << read_block_size << "Dummy latency is " << latency << "ns" << std::endl;
 

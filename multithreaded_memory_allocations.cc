@@ -1,7 +1,7 @@
 #include <iostream>
 #include "rdma.h"
 
-size_t thread_num;
+size_t thread_num = 500000;
 
 bool mem_test_start = false;
 size_t mem_thread_ready_num = 0;
@@ -99,8 +99,8 @@ int main(){
     std::cout << "No of mem slots to be allocated :\r" << std::endl;
     std::cin >> mem_thread_num;
 
-    std::cout << "thread num:\r" << std::endl;
-    std::cin >> thread_num;
+    // std::cout << "thread num:\r" << std::endl;
+    // std::cin >> thread_num;
 
     rdma_manager->Mempool_initialize(std::string("test"), read_block_size);
     std::thread* mem_thread_object[mem_thread_num];
@@ -129,11 +129,11 @@ int main(){
     ends  = std::chrono::high_resolution_clock::now().time_since_epoch().count();
     printf("thread has finished.\n");
     mem_l_e.unlock();
-    double bandwidth = ((double)read_block_size*thread_num*iteration) / (ends-starts) * 1000;
-    double latency = ((double) (ends-starts)) / (thread_num * iteration);
-    std::cout << (ends-starts) << std::endl;
-    std::cout << "Size: " << read_block_size << "Bandwidth is " << bandwidth << "MB/s" << std::endl;
-    std::cout << "Size: " << read_block_size << "Dummy latency is " << latency << "ns" << std::endl;
+    // double bandwidth = ((double)read_block_size*thread_num*iteration) / (ends-starts) * 1000;
+    // double latency = ((double) (ends-starts)) / (thread_num * iteration);
+    std::cout <<"Time Taken"<< (ends-starts) << std::endl;
+    // std::cout << "Size: " << read_block_size << "Bandwidth is " << bandwidth << "MB/s" << std::endl;
+    // std::cout << "Size: " << read_block_size << "Dummy latency is " << latency << "ns" << std::endl;
 
     return 0;
 }

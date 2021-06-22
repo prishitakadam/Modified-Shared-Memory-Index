@@ -12,7 +12,7 @@ std::mutex mem_startmtx;
 std::mutex mem_finishmtx;
 std::condition_variable mem_cv;
 
-void mulithreaded_memory_allocations(RDMA_Manager *rdma_manager, ibv_mr** remote_chunks, ibv_mr** local_chunks, size_t i, size_t msg_size){
+void mulithreaded_memory_allocations(RDMA_Manager *rdma_manager, size_t i, size_t msg_size){
     std::unique_lock<std::mutex> mem_lck_start(mem_startmtx);
     mem_thread_ready_num++;
     std::cout<<"Created\n "<<mem_thread_ready_num;
@@ -25,6 +25,10 @@ void mulithreaded_memory_allocations(RDMA_Manager *rdma_manager, ibv_mr** remote
     }
 
     mem_lck_start.unlock();
+
+    //Allocate in main function
+    ibv_mr* RDMA_local_chunks[thread_num][j_size+1];
+    ibv_mr* RDMA_remote_chunks[thread_num][j_size+1];
     
     for(size_t j= 0; j< j_size; j++){//j should be bigger value
         rdma_manager->Allocate_Remote_RDMA_Slot(remote_chunks[i][j]);
@@ -100,9 +104,6 @@ int main(){
     std::cout << "\nJ Size : \r" << std::endl;
     std::cin >> j_size;
 
-    //Allocate in main function
-    ibv_mr* RDMA_local_chunks[thread_num][j_size+1];
-    ibv_mr* RDMA_remote_chunks[thread_num][j_size+1];
 
     rdma_manager->Mempool_initialize(std::string("test"), read_block_size);
     std::thread* mem_thread_object[thread_num];
@@ -110,7 +111,7 @@ int main(){
     long int ends;
     int iteration = 100;
     for(size_t i = 0; i < thread_num; i++){
-        mem_thread_object[i] = new std::thread(mulithreaded_memory_allocations, rdma_manager, RDMA_local_chunks, RDMA_remote_chunks, i, read_block_size);
+        mem_thread_object[i] = new std::thread(mulithreaded_memory_allocations, rdma_manager, i, read_block_size);
         mem_thread_object[i]->detach();
     }
 

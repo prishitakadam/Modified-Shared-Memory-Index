@@ -63,7 +63,7 @@ int main(){
   RDMA_Manager* rdma_manager = new RDMA_Manager(config, remote_block_size);
   // Unlike the remote block size, the local block size is adjustable, and there could be different
   // local memory pool with different size. each size of memory pool will have an ID below is "4k"
-  rdma_manager->Mempool_initialize(std::string("4k"), 4*1024);
+  rdma_manager->Mempool_initialize(std::string("4k"), 1024*1024);
 
     //client will try to connect to the remote memory, now there is only one remote memory.
   rdma_manager->Client_Set_Up_Resources();

@@ -15,7 +15,7 @@ std::condition_variable mem_cv;
 void mulithreaded_memory_allocations(RDMA_Manager *rdma_manager, size_t i, size_t msg_size){
     std::unique_lock<std::mutex> mem_lck_start(mem_startmtx);
     mem_thread_ready_num++;
-    std::cout<<"Created\n "<<mem_thread_ready_num;
+    std::cout<<"Created "<<mem_thread_ready_num<< "\n";
     if (mem_thread_ready_num >= thread_num) {
         mem_cv.notify_all();
     }
@@ -41,7 +41,7 @@ void mulithreaded_memory_allocations(RDMA_Manager *rdma_manager, size_t i, size_
 
     std::unique_lock<std::mutex> mem_lck_end(mem_startmtx);
     mem_thread_finish_num++;
-    std::cout<<"Finished\n "<<mem_thread_finish_num;
+    std::cout<<"Finished "<<mem_thread_finish_num<<" \n";
     if(mem_thread_finish_num >= thread_num) {
         mem_cv.notify_all();
     }
@@ -90,7 +90,7 @@ int main(){
 
 
 
-    printf("multiple threaded demo\n");
+    printf("Multiple Threaded Demo\n");
     size_t read_block_size;
 
     //    std::cout << "block size:\r" << std::endl;
@@ -130,7 +130,7 @@ int main(){
         mem_cv.wait(mem_l_e);
     }
     ends  = std::chrono::high_resolution_clock::now().time_since_epoch().count();
-    printf("thread has finished.\n");
+    printf("Thread has finished \n");
     mem_l_e.unlock();
     double throughput = ((double)j_size*thread_num)/(ends-starts);
     // double bandwidth = ((double)read_block_size*thread_num*iteration) / (ends-starts) * 1000;

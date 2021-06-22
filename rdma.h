@@ -159,7 +159,7 @@ class In_Use_Array{
     // for (size_t i = 0; i < element_size_; ++i){
     //   in_use_[i] = false;
     // }
-    fprintf(element_size_, "Element Size\n");
+    printf("Element Size : %d\n", element_size_);
     for(size_t i=0; i<element_size_; ++i){
       in_use_->push(i);
     }

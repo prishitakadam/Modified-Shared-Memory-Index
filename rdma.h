@@ -37,6 +37,8 @@
 #include <vector>
 #include <thread_local.h>
 #include<queue>
+#include<util/mutexlock.h>
+using namespace std;
 //#include <util/thread_local.h>
 //#ifdef __cplusplus
 //extern "C" { //only need to export C interface if
@@ -157,6 +159,7 @@ class In_Use_Array{
     // for (size_t i = 0; i < element_size_; ++i){
     //   in_use_[i] = false;
     // }
+    fprintf(element_size_, "Element Size\n");
     for(size_t i=0; i<element_size_; ++i){
       in_use_->push(i);
     }

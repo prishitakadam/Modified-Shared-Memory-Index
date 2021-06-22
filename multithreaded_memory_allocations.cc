@@ -132,7 +132,7 @@ int main(){
     double throughput = ((double)1000000*mem_thread_num)/(ends-starts);
     // double bandwidth = ((double)read_block_size*thread_num*iteration) / (ends-starts) * 1000;
     // double latency = ((double) (ends-starts)) / (thread_num * iteration);
-    std::cout <<"Time Taken "<< throughput << std::endl;
+    std::cout <<"Throughput "<< throughput << std::endl;
     // std::cout << "Size: " << read_block_size << "Bandwidth is " << bandwidth << "MB/s" << std::endl;
     // std::cout << "Size: " << read_block_size << "Dummy latency is " << latency << "ns" << std::endl;
 

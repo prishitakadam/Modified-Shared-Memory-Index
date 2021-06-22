@@ -14,7 +14,7 @@ std::condition_variable mem_cv;
 void mulithreaded_memory_allocations(RDMA_Manager *rdma_manager, size_t msg_size){
     std::unique_lock<std::mutex> mem_lck_start(mem_startmtx);
     mem_thread_ready_num++;
-    std::cout<<"\nCreated "<<mem_thread_ready_num;
+    std::cout<<"Created\n "<<mem_thread_ready_num;
     if (mem_thread_ready_num >= mem_thread_num) {
         mem_cv.notify_all();
     }
@@ -40,7 +40,7 @@ void mulithreaded_memory_allocations(RDMA_Manager *rdma_manager, size_t msg_size
 
     std::unique_lock<std::mutex> mem_lck_end(mem_startmtx);
     mem_thread_finish_num++;
-    std::cout<<"\nFinished "<<mem_thread_finish_num;
+    std::cout<<"Finished\n "<<mem_thread_finish_num;
     if(mem_thread_finish_num >= mem_thread_num) {
         mem_cv.notify_all();
     }
@@ -131,7 +131,7 @@ int main(){
     mem_l_e.unlock();
     // double bandwidth = ((double)read_block_size*thread_num*iteration) / (ends-starts) * 1000;
     // double latency = ((double) (ends-starts)) / (thread_num * iteration);
-    std::cout <<"Time Taken "<< 1000000/(ends-starts) << std::endl;
+    std::cout <<"Time Taken "<< (mem_thread_num*1000000)/(ends-starts) << std::endl;
     // std::cout << "Size: " << read_block_size << "Bandwidth is " << bandwidth << "MB/s" << std::endl;
     // std::cout << "Size: " << read_block_size << "Dummy latency is " << latency << "ns" << std::endl;
 

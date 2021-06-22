@@ -1,7 +1,7 @@
 #include <iostream>
 #include "rdma.h"
 
-size_t thread_num = 500000;
+size_t thread_num;
 
 bool mem_test_start = false;
 size_t mem_thread_ready_num = 0;
@@ -99,8 +99,8 @@ int main(){
     std::cout << "No of mem slots to be allocated :\r" << std::endl;
     std::cin >> mem_thread_num;
 
-    // std::cout << "thread num:\r" << std::endl;
-    // std::cin >> thread_num;
+    std::cout << "thread num:\r" << std::endl;
+    std::cin >> thread_num;
 
     rdma_manager->Mempool_initialize(std::string("test"), read_block_size);
     std::thread* mem_thread_object[mem_thread_num];

@@ -12,7 +12,7 @@ std::mutex mem_startmtx;
 std::mutex mem_finishmtx;
 std::condition_variable mem_cv;
 
-void mulithreaded_memory_allocations(RDMA_Manager *rdma_manager, ibv_mr *local_chunks, ibv_mr *remote_chunks, size_t msg_size){
+void mulithreaded_memory_allocations(RDMA_Manager *rdma_manager, ibv_mr** local_chunks, ibv_mr** remote_chunks, size_t msg_size){
     std::unique_lock<std::mutex> mem_lck_start(mem_startmtx);
     mem_thread_ready_num++;
     std::cout<<"Created "<<mem_thread_ready_num<< "\n";

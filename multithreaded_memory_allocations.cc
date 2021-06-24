@@ -2,7 +2,7 @@
 #include "rdma.h"
 
 size_t thread_num;
-size_t j_size;
+size_t j_size = 2000;
 
 bool mem_test_start = false;
 size_t mem_thread_ready_num = 0;
@@ -99,8 +99,8 @@ int main(){
     std::cout << "Thread Num:\r" << std::endl;
     std::cin >> thread_num;
 
-    std::cout << "\nJ Size : \r" << std::endl;
-    std::cin >> j_size;
+    // std::cout << "\nJ Size : \r" << std::endl;
+    // std::cin >> j_size;
 
 
     rdma_manager->Mempool_initialize(std::string("test"), read_block_size);

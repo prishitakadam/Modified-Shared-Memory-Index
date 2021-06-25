@@ -3,8 +3,6 @@
 
 size_t thread_num;
 size_t j_size = 2000;
-ibv_mr* RDMA_local_chunks[thread_num][j_size+1];
-ibv_mr* RDMA_remote_chunks[thread_num][j_size+1];
 bool mem_test_start = false;
 size_t mem_thread_ready_num = 0;
 size_t mem_thread_finish_num = 0;
@@ -13,7 +11,7 @@ std::mutex mem_startmtx;
 std::mutex mem_finishmtx;
 std::condition_variable mem_cv;
 
-void mulithreaded_memory_allocations(RDMA_Manager *rdma_manager, ibv_mr **local_chunks, ibv_mr **remote_chunks, size_t i, size_t msg_size){
+void mulithreaded_memory_allocations(RDMA_Manager *rdma_manager, ibv_mr *local_chunks, ibv_mr *remote_chunks, size_t i, size_t msg_size){
     std::unique_lock<std::mutex> mem_lck_start(mem_startmtx);
     mem_thread_ready_num++;
     std::cout<<"Created "<<mem_thread_ready_num<< "\n";
@@ -107,6 +105,8 @@ int main(){
     rdma_manager->Mempool_initialize(std::string("test"), read_block_size);
     // ibv_mr* RDMA_local_chunks[thread_num][10];
     // ibv_mr* RDMA_remote_chunks[thread_num][10];
+    ibv_mr* RDMA_local_chunks[thread_num][j_size+1];
+    ibv_mr* RDMA_remote_chunks[thread_num][j_size+1];
     long int starts;
     long int ends;
     int iteration = 100;

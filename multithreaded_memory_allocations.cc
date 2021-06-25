@@ -103,8 +103,8 @@ int main(){
 
 
     rdma_manager->Mempool_initialize(std::string("test"), read_block_size);
-    // ibv_mr* RDMA_local_chunks[thread_num][10];
-    // ibv_mr* RDMA_remote_chunks[thread_num][10];
+    ibv_mr* RDMA_local_chunks[thread_num][10];
+    ibv_mr* RDMA_remote_chunks[thread_num][10];
     
     long int starts;
     long int ends;

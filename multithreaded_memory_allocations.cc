@@ -26,8 +26,8 @@ void mulithreaded_memory_allocations(RDMA_Manager *rdma_manager, size_t i, size_
     mem_lck_start.unlock();
 
     //Allocate in main function
-    ibv_mr* RDMA_local_chunks[thread_num][10];
-    ibv_mr* RDMA_remote_chunks[thread_num][10];
+    ibv_mr* RDMA_local_chunks[thread_num][j_size];
+    ibv_mr* RDMA_remote_chunks[thread_num][j_size];
     
     for(size_t j= 0; j< j_size; j++){//j should be bigger value
         rdma_manager->Allocate_Remote_RDMA_Slot(RDMA_remote_chunks[i][j]);

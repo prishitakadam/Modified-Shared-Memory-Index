@@ -11,7 +11,7 @@ set(SOURCES util/thread_local.cc
 include_directories($(PROJECT_SOURCE_DIR))
 include_directories($(PROJECT_SOURCE_DIR)/util)
 include_directories($(PROJECT_SOURCE_DIR)/port)
-add_executable(Demo_compute compute_node.cc ${SOURCES})
+add_executable(Demo_compute multithreaded_memory_allocations.cc ${SOURCES})
 add_executable(Demo_memory server.cc ${SOURCES})
 #target_link_libraries(RDMA ibverbs)
 target_link_libraries(Demo_compute ibverbs)

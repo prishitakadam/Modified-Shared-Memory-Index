@@ -2198,7 +2198,7 @@ void RDMA_Manager::fs_serialization(char*& buff, size_t& size, std::string& db_n
     size_t chunk_size_net = htonl(chunk_size);
     memcpy(temp, &chunk_size_net, sizeof(size_t));
     temp = temp + sizeof(size_t);
-    std::atomic<bool>* in_use = iter.second.get_inuse_table();
+    std::queue<int>* in_use = iter.second.get_inuse_table();
     auto mr = iter.second.get_mr_ori();
     p = mr->context;
     //TODO: It can not be changed into net stream.

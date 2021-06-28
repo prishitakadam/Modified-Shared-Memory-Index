@@ -411,16 +411,16 @@ class RDMA_Manager{
   // this function will determine whether the pointer is with in the registered memory
   bool CheckInsideLocalBuff(void* p, std::_Rb_tree_iterator<std::pair<void * const, In_Use_Array>>& mr_iter,
                             std::map<void*, In_Use_Array>* Bitmap);
-  // void mr_serialization(char*& temp, size_t& size, ibv_mr* mr);
-  // void mr_deserialization(char*& temp, size_t& size, ibv_mr*& mr);
+  void mr_serialization(char*& temp, size_t& size, ibv_mr* mr);
+  void mr_deserialization(char*& temp, size_t& size, ibv_mr*& mr);
 
-  // void fs_serialization(char*& buff, size_t& size, std::string& db_name,
-  //     std::unordered_map<std::string, SST_Metadata*>& file_to_sst_meta, std::map<void*, In_Use_Array>& remote_mem_bitmap);
-  // //Deserialization for linked file is problematic because different file may link to the same SSTdata
-  // void fs_deserilization(char*& buff, size_t& size, std::string& db_name,
-  //     std::unordered_map<std::string, SST_Metadata*>& file_to_sst_meta,
-  //                        std::map<void*, In_Use_Array>& remote_mem_bitmap,
-  //                        ibv_mr* local_mr);
+  void fs_serialization(char*& buff, size_t& size, std::string& db_name,
+      std::unordered_map<std::string, SST_Metadata*>& file_to_sst_meta, std::map<void*, In_Use_Array>& remote_mem_bitmap);
+  //Deserialization for linked file is problematic because different file may link to the same SSTdata
+  void fs_deserilization(char*& buff, size_t& size, std::string& db_name,
+      std::unordered_map<std::string, SST_Metadata*>& file_to_sst_meta,
+                         std::map<void*, In_Use_Array>& remote_mem_bitmap,
+                         ibv_mr* local_mr);
 //  void mem_pool_serialization
     //TODO: Make all the variable more smart pointers.
   resources* res = nullptr;

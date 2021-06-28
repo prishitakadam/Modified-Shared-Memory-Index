@@ -2080,22 +2080,22 @@ bool RDMA_Manager::Mempool_initialize(std::string pool_name, size_t size) {
   return true;
 }
 //serialization for Memory regions
-void RDMA_Manager::mr_serialization(char*& temp, size_t& size, ibv_mr* mr){
+// void RDMA_Manager::mr_serialization(char*& temp, size_t& size, ibv_mr* mr){
 
-  void* p = mr->addr;
-  memcpy(temp, &p, sizeof(void*));
-  temp = temp + sizeof(void*);
-  uint32_t rkey = mr->rkey;
-  uint32_t rkey_net = htonl(rkey);
-  memcpy(temp, &rkey_net, sizeof(uint32_t));
-  temp = temp + sizeof(uint32_t);
-  uint32_t lkey = mr->lkey;
-  uint32_t lkey_net = htonl(lkey);
-  memcpy(temp, &lkey_net, sizeof(uint32_t));
-  temp = temp + sizeof(uint32_t);
+//   void* p = mr->addr;
+//   memcpy(temp, &p, sizeof(void*));
+//   temp = temp + sizeof(void*);
+//   uint32_t rkey = mr->rkey;
+//   uint32_t rkey_net = htonl(rkey);
+//   memcpy(temp, &rkey_net, sizeof(uint32_t));
+//   temp = temp + sizeof(uint32_t);
+//   uint32_t lkey = mr->lkey;
+//   uint32_t lkey_net = htonl(lkey);
+//   memcpy(temp, &lkey_net, sizeof(uint32_t));
+//   temp = temp + sizeof(uint32_t);
 
 
-}
+// }
 
 // void RDMA_Manager::fs_serialization(char*& buff, size_t& size, std::string& db_name,
 //                                     std::unordered_map<std::string, SST_Metadata*>& file_to_sst_meta, std::map<void*, In_Use_Array>& remote_mem_bitmap){

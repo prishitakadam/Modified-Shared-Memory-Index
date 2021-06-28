@@ -2097,326 +2097,326 @@ void RDMA_Manager::mr_serialization(char*& temp, size_t& size, ibv_mr* mr){
 
 }
 
-// void RDMA_Manager::fs_serialization(char*& buff, size_t& size, std::string& db_name,
-//                                     std::unordered_map<std::string, SST_Metadata*>& file_to_sst_meta, std::map<void*, In_Use_Array>& remote_mem_bitmap){
-//   auto start = std::chrono::high_resolution_clock::now();
-//   char* temp = buff;
+void RDMA_Manager::fs_serialization(char*& buff, size_t& size, std::string& db_name,
+                                    std::unordered_map<std::string, SST_Metadata*>& file_to_sst_meta, std::map<void*, In_Use_Array>& remote_mem_bitmap){
+  auto start = std::chrono::high_resolution_clock::now();
+  char* temp = buff;
 
-//   size_t namenumber = db_name.size();
-//   size_t namenumber_net = htonl(namenumber);
-//   memcpy(temp, &namenumber_net, sizeof(size_t));
-//   temp = temp + sizeof(size_t);
+  size_t namenumber = db_name.size();
+  size_t namenumber_net = htonl(namenumber);
+  memcpy(temp, &namenumber_net, sizeof(size_t));
+  temp = temp + sizeof(size_t);
 
-//   memcpy(temp, db_name.c_str(), namenumber);
-//   temp = temp + namenumber;
-//   //serialize the filename map
-//   {
-//     size_t filenumber = file_to_sst_meta.size();
-//     size_t filenumber_net = htonl(filenumber);
-//     memcpy(temp, &filenumber_net, sizeof(size_t));
-//     temp = temp + sizeof(size_t);
+  memcpy(temp, db_name.c_str(), namenumber);
+  temp = temp + namenumber;
+  //serialize the filename map
+  {
+    size_t filenumber = file_to_sst_meta.size();
+    size_t filenumber_net = htonl(filenumber);
+    memcpy(temp, &filenumber_net, sizeof(size_t));
+    temp = temp + sizeof(size_t);
 
-//     for (auto iter: file_to_sst_meta) {
-//       size_t filename_length = iter.first.size();
-//       size_t filename_length_net = htonl(filename_length);
-//       memcpy(temp, &filename_length_net, sizeof(size_t));
-//       temp = temp + sizeof(size_t);
+    for (auto iter: file_to_sst_meta) {
+      size_t filename_length = iter.first.size();
+      size_t filename_length_net = htonl(filename_length);
+      memcpy(temp, &filename_length_net, sizeof(size_t));
+      temp = temp + sizeof(size_t);
 
-//       memcpy(temp, iter.first.c_str(), filename_length);
-//       temp = temp + filename_length;
+      memcpy(temp, iter.first.c_str(), filename_length);
+      temp = temp + filename_length;
 
-//       unsigned int file_size = iter.second->file_size;
-//       unsigned int file_size_net = htonl(file_size);
-//       memcpy(temp, &file_size_net, sizeof(unsigned int));
-//       temp = temp + sizeof(unsigned int);
+      unsigned int file_size = iter.second->file_size;
+      unsigned int file_size_net = htonl(file_size);
+      memcpy(temp, &file_size_net, sizeof(unsigned int));
+      temp = temp + sizeof(unsigned int);
 
-//       // check how long is the list
-//       SST_Metadata* meta_p = iter.second;
-//       SST_Metadata* temp_meta = meta_p;
-//       size_t list_len = 1;
-//       while (temp_meta->next_ptr != nullptr) {
-//         list_len++;
-//         temp_meta = temp_meta->next_ptr;
-//       }
-//       size_t list_len_net = ntohl(list_len);
-//       memcpy(temp, &list_len_net, sizeof(size_t));
-//       temp = temp + sizeof(size_t);
+      // check how long is the list
+      SST_Metadata* meta_p = iter.second;
+      SST_Metadata* temp_meta = meta_p;
+      size_t list_len = 1;
+      while (temp_meta->next_ptr != nullptr) {
+        list_len++;
+        temp_meta = temp_meta->next_ptr;
+      }
+      size_t list_len_net = ntohl(list_len);
+      memcpy(temp, &list_len_net, sizeof(size_t));
+      temp = temp + sizeof(size_t);
 
-//       meta_p = iter.second;
-//       size_t length_map = meta_p->map_pointer->length;
-//       size_t length_map_net = htonl(length_map);
-//       memcpy(temp, &length_map_net, sizeof(size_t));
-//       temp = temp + sizeof(size_t);
+      meta_p = iter.second;
+      size_t length_map = meta_p->map_pointer->length;
+      size_t length_map_net = htonl(length_map);
+      memcpy(temp, &length_map_net, sizeof(size_t));
+      temp = temp + sizeof(size_t);
 
-//       //Here we put context pd handle and length outside the serialization because we do not need
-//       void* p = meta_p->mr->context;
-//       //TODO: It can not be changed into net stream.
-// //    void* p_net = htonll(p);
-//       memcpy(temp, &p, sizeof(void*));
-//       temp = temp + sizeof(void*);
+      //Here we put context pd handle and length outside the serialization because we do not need
+      void* p = meta_p->mr->context;
+      //TODO: It can not be changed into net stream.
+//    void* p_net = htonll(p);
+      memcpy(temp, &p, sizeof(void*));
+      temp = temp + sizeof(void*);
 
-//       p = meta_p->mr->pd;
-//       memcpy(temp, &p, sizeof(void*));
-//       temp = temp + sizeof(void*);
+      p = meta_p->mr->pd;
+      memcpy(temp, &p, sizeof(void*));
+      temp = temp + sizeof(void*);
 
-//       uint32_t handle = meta_p->mr->handle;
-//       uint32_t handle_net = htonl(handle);
-//       memcpy(temp, &handle_net, sizeof(uint32_t));
-//       temp = temp + sizeof(uint32_t);
+      uint32_t handle = meta_p->mr->handle;
+      uint32_t handle_net = htonl(handle);
+      memcpy(temp, &handle_net, sizeof(uint32_t));
+      temp = temp + sizeof(uint32_t);
 
-//       size_t length_mr = meta_p->mr->length;
-//       size_t length_mr_net = htonl(length_mr);
-//       memcpy(temp, &length_mr_net, sizeof(size_t));
-//       temp = temp + sizeof(size_t);
+      size_t length_mr = meta_p->mr->length;
+      size_t length_mr_net = htonl(length_mr);
+      memcpy(temp, &length_mr_net, sizeof(size_t));
+      temp = temp + sizeof(size_t);
 
-//       while (meta_p != nullptr) {
-//         mr_serialization(temp, size, meta_p->mr);
-//         // TODO: minimize the size of the serialized data. For exe, could we save
-//         // TODO: the mr length only once?
-//         p = meta_p->map_pointer->addr;
-//         memcpy(temp, &p, sizeof(void*));
-//         temp = temp + sizeof(void*);
-//         meta_p = meta_p->next_ptr;
+      while (meta_p != nullptr) {
+        mr_serialization(temp, size, meta_p->mr);
+        // TODO: minimize the size of the serialized data. For exe, could we save
+        // TODO: the mr length only once?
+        p = meta_p->map_pointer->addr;
+        memcpy(temp, &p, sizeof(void*));
+        temp = temp + sizeof(void*);
+        meta_p = meta_p->next_ptr;
 
-//       }
-//     }
-//   }
-//   // Serialization for the bitmap
-//   size_t bitmap_number = remote_mem_bitmap.size();
-//   size_t bitmap_number_net = htonl(bitmap_number);
-//   memcpy(temp, &bitmap_number_net, sizeof(size_t));
-//   temp = temp + sizeof(size_t);
-//   for (auto iter: remote_mem_bitmap){
-//     void* p = iter.first;
-//     memcpy(temp, &p, sizeof(void*));
-//     temp = temp + sizeof(void*);
-//     size_t element_size = iter.second.get_element_size();
-//     size_t element_size_net = htonl(element_size);
-//     memcpy(temp, &element_size_net, sizeof(size_t));
-//     temp = temp + sizeof(size_t);
-//     size_t chunk_size = iter.second.get_chunk_size();
-//     size_t chunk_size_net = htonl(chunk_size);
-//     memcpy(temp, &chunk_size_net, sizeof(size_t));
-//     temp = temp + sizeof(size_t);
-//     std::queue<int>* in_use = iter.second.get_inuse_table();
-//     auto mr = iter.second.get_mr_ori();
-//     p = mr->context;
-//     //TODO: It can not be changed into net stream.
-// //    void* p_net = htonll(p);
-//     memcpy(temp, &p, sizeof(void*));
-//     temp = temp + sizeof(void*);
+      }
+    }
+  }
+  // Serialization for the bitmap
+  size_t bitmap_number = remote_mem_bitmap.size();
+  size_t bitmap_number_net = htonl(bitmap_number);
+  memcpy(temp, &bitmap_number_net, sizeof(size_t));
+  temp = temp + sizeof(size_t);
+  for (auto iter: remote_mem_bitmap){
+    void* p = iter.first;
+    memcpy(temp, &p, sizeof(void*));
+    temp = temp + sizeof(void*);
+    size_t element_size = iter.second.get_element_size();
+    size_t element_size_net = htonl(element_size);
+    memcpy(temp, &element_size_net, sizeof(size_t));
+    temp = temp + sizeof(size_t);
+    size_t chunk_size = iter.second.get_chunk_size();
+    size_t chunk_size_net = htonl(chunk_size);
+    memcpy(temp, &chunk_size_net, sizeof(size_t));
+    temp = temp + sizeof(size_t);
+    std::atomic<bool>* in_use = iter.second.get_inuse_table();
+    auto mr = iter.second.get_mr_ori();
+    p = mr->context;
+    //TODO: It can not be changed into net stream.
+//    void* p_net = htonll(p);
+    memcpy(temp, &p, sizeof(void*));
+    temp = temp + sizeof(void*);
 
-//     p = mr->pd;
-//     memcpy(temp, &p, sizeof(void*));
-//     temp = temp + sizeof(void*);
+    p = mr->pd;
+    memcpy(temp, &p, sizeof(void*));
+    temp = temp + sizeof(void*);
 
-//     uint32_t handle = mr->handle;
-//     uint32_t handle_net = htonl(handle);
-//     memcpy(temp, &handle_net, sizeof(uint32_t));
-//     temp = temp + sizeof(uint32_t);
+    uint32_t handle = mr->handle;
+    uint32_t handle_net = htonl(handle);
+    memcpy(temp, &handle_net, sizeof(uint32_t));
+    temp = temp + sizeof(uint32_t);
 
-//     size_t length_mr = mr->length;
-//     size_t length_mr_net = htonl(length_mr);
-//     memcpy(temp, &length_mr_net, sizeof(size_t));
-//     temp = temp + sizeof(size_t);
-//     for (size_t i = 0; i<element_size; i++){
+    size_t length_mr = mr->length;
+    size_t length_mr_net = htonl(length_mr);
+    memcpy(temp, &length_mr_net, sizeof(size_t));
+    temp = temp + sizeof(size_t);
+    for (size_t i = 0; i<element_size; i++){
 
-//       bool bit_temp = in_use[i];
-//       memcpy(temp, &bit_temp, sizeof(bool));
-//       temp = temp + sizeof(bool);
-//     }
-//     mr_serialization(temp, size, iter.second.get_mr_ori());
+      bool bit_temp = in_use[i];
+      memcpy(temp, &bit_temp, sizeof(bool));
+      temp = temp + sizeof(bool);
+    }
+    mr_serialization(temp, size, iter.second.get_mr_ori());
 
-//   }
-//   size = temp - buff;
-//   auto stop = std::chrono::high_resolution_clock::now();
-//   auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(stop - start);
-//   printf("fs serialization time elapse: %ld\n", duration.count());
-// }
-// void RDMA_Manager::mr_deserialization(char*& temp, size_t& size, ibv_mr*& mr){
+  }
+  size = temp - buff;
+  auto stop = std::chrono::high_resolution_clock::now();
+  auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(stop - start);
+  printf("fs serialization time elapse: %ld\n", duration.count());
+}
+void RDMA_Manager::mr_deserialization(char*& temp, size_t& size, ibv_mr*& mr){
 
-//   void* addr_p = nullptr;
-//   memcpy(&addr_p, temp, sizeof(void*));
-//   temp = temp + sizeof(void*);
+  void* addr_p = nullptr;
+  memcpy(&addr_p, temp, sizeof(void*));
+  temp = temp + sizeof(void*);
 
-//   uint32_t rkey_net;
-//   memcpy(&rkey_net, temp, sizeof(uint32_t));
-//   uint32_t rkey = htonl(rkey_net);
-//   temp = temp + sizeof(uint32_t);
+  uint32_t rkey_net;
+  memcpy(&rkey_net, temp, sizeof(uint32_t));
+  uint32_t rkey = htonl(rkey_net);
+  temp = temp + sizeof(uint32_t);
 
-//   uint32_t lkey_net;
-//   memcpy(&lkey_net, temp, sizeof(uint32_t));
-//   uint32_t lkey = htonl(lkey_net);
-//   temp = temp + sizeof(uint32_t);
+  uint32_t lkey_net;
+  memcpy(&lkey_net, temp, sizeof(uint32_t));
+  uint32_t lkey = htonl(lkey_net);
+  temp = temp + sizeof(uint32_t);
 
-//   mr->addr = addr_p;
-//   mr->rkey = rkey;
-//   mr->lkey = lkey;
-// }
-// void RDMA_Manager::fs_deserilization(
-//     char*& buff, size_t& size, std::string& db_name,
-//     std::unordered_map<std::string, SST_Metadata*>& file_to_sst_meta,
-//     std::map<void*, In_Use_Array>& remote_mem_bitmap, ibv_mr* local_mr) {
-//   auto start = std::chrono::high_resolution_clock::now();
-//   char* temp = buff;
-//   size_t namenumber_net;
-//   memcpy(&namenumber_net, temp, sizeof(size_t));
-//   size_t namenumber = htonl(namenumber_net);
-//   temp = temp + sizeof(size_t);
+  mr->addr = addr_p;
+  mr->rkey = rkey;
+  mr->lkey = lkey;
+}
+void RDMA_Manager::fs_deserilization(
+    char*& buff, size_t& size, std::string& db_name,
+    std::unordered_map<std::string, SST_Metadata*>& file_to_sst_meta,
+    std::map<void*, In_Use_Array>& remote_mem_bitmap, ibv_mr* local_mr) {
+  auto start = std::chrono::high_resolution_clock::now();
+  char* temp = buff;
+  size_t namenumber_net;
+  memcpy(&namenumber_net, temp, sizeof(size_t));
+  size_t namenumber = htonl(namenumber_net);
+  temp = temp + sizeof(size_t);
 
-//   char dbname_[namenumber+1];
-//   memcpy(dbname_, temp, namenumber);
-//   dbname_[namenumber] = '\0';
-//   temp = temp + namenumber;
+  char dbname_[namenumber+1];
+  memcpy(dbname_, temp, namenumber);
+  dbname_[namenumber] = '\0';
+  temp = temp + namenumber;
 
-//   assert(db_name == std::string(dbname_));
-//   size_t filenumber_net;
-//   memcpy(&filenumber_net, temp, sizeof(size_t));
-//   size_t filenumber = htonl(filenumber_net);
-//   temp = temp + sizeof(size_t);
+  assert(db_name == std::string(dbname_));
+  size_t filenumber_net;
+  memcpy(&filenumber_net, temp, sizeof(size_t));
+  size_t filenumber = htonl(filenumber_net);
+  temp = temp + sizeof(size_t);
 
-//   for (size_t i = 0; i < filenumber; i++) {
-//     size_t filename_length_net;
-//     memcpy(&filename_length_net, temp, sizeof(size_t));
-//     size_t filename_length = ntohl(filename_length_net);
-//     temp = temp + sizeof(size_t);
+  for (size_t i = 0; i < filenumber; i++) {
+    size_t filename_length_net;
+    memcpy(&filename_length_net, temp, sizeof(size_t));
+    size_t filename_length = ntohl(filename_length_net);
+    temp = temp + sizeof(size_t);
 
-//     char filename[filename_length+1];
-//     memcpy(filename, temp, filename_length);
-//     filename[filename_length] = '\0';
-//     temp = temp + filename_length;
+    char filename[filename_length+1];
+    memcpy(filename, temp, filename_length);
+    filename[filename_length] = '\0';
+    temp = temp + filename_length;
 
-//     unsigned int file_size_net = 0;
-//     memcpy(&file_size_net, temp, sizeof(unsigned int));
-//     unsigned int file_size = ntohl(file_size_net);
-//     temp = temp + sizeof(unsigned int);
+    unsigned int file_size_net = 0;
+    memcpy(&file_size_net, temp, sizeof(unsigned int));
+    unsigned int file_size = ntohl(file_size_net);
+    temp = temp + sizeof(unsigned int);
 
-//     size_t list_len_net = 0;
-//     memcpy(&list_len_net, temp, sizeof(size_t));
-//     size_t list_len = htonl(list_len_net);
-//     temp = temp + sizeof(size_t);
+    size_t list_len_net = 0;
+    memcpy(&list_len_net, temp, sizeof(size_t));
+    size_t list_len = htonl(list_len_net);
+    temp = temp + sizeof(size_t);
 
-//     SST_Metadata* meta_head;
-//     SST_Metadata* meta = new SST_Metadata();
+    SST_Metadata* meta_head;
+    SST_Metadata* meta = new SST_Metadata();
 
-//     meta->file_size = file_size;
+    meta->file_size = file_size;
 
-//     meta_head = meta;
-//     size_t length_map_net = 0;
-//     memcpy(&length_map_net, temp, sizeof(size_t));
-//     size_t length_map = htonl(length_map_net);
-//     temp = temp + sizeof(size_t);
+    meta_head = meta;
+    size_t length_map_net = 0;
+    memcpy(&length_map_net, temp, sizeof(size_t));
+    size_t length_map = htonl(length_map_net);
+    temp = temp + sizeof(size_t);
 
-//     void* context_p = nullptr;
-//     //TODO: It can not be changed into net stream.
-//     memcpy(&context_p, temp, sizeof(void*));
-// //    void* p_net = htonll(context_p);
-//     temp = temp + sizeof(void*);
+    void* context_p = nullptr;
+    //TODO: It can not be changed into net stream.
+    memcpy(&context_p, temp, sizeof(void*));
+//    void* p_net = htonll(context_p);
+    temp = temp + sizeof(void*);
 
-//     void* pd_p = nullptr;
-//     memcpy(&pd_p, temp, sizeof(void*));
-//     temp = temp + sizeof(void*);
+    void* pd_p = nullptr;
+    memcpy(&pd_p, temp, sizeof(void*));
+    temp = temp + sizeof(void*);
 
-//     uint32_t handle_net;
-//     memcpy(&handle_net, temp,  sizeof(uint32_t));
-//     uint32_t handle = htonl(handle_net);
-//     temp = temp + sizeof(uint32_t);
+    uint32_t handle_net;
+    memcpy(&handle_net, temp,  sizeof(uint32_t));
+    uint32_t handle = htonl(handle_net);
+    temp = temp + sizeof(uint32_t);
 
-//     size_t length_mr_net = 0;
-//     memcpy(&length_mr_net, temp, sizeof(size_t));
-//     size_t length_mr = htonl(length_mr_net);
-//     temp = temp + sizeof(size_t);
+    size_t length_mr_net = 0;
+    memcpy(&length_mr_net, temp, sizeof(size_t));
+    size_t length_mr = htonl(length_mr_net);
+    temp = temp + sizeof(size_t);
 
-//     for (size_t j = 0; j<list_len; j++){
-//       meta->mr = new ibv_mr;
-//       meta->mr->context = static_cast<ibv_context*>(context_p);
-//       meta->mr->pd = static_cast<ibv_pd*>(pd_p);
-//       meta->mr->handle = handle;
-//       meta->mr->length = length_mr;
-//       //below could be problematic.
-//       meta->fname = std::string(filename);
-//       mr_deserialization(temp, size, meta->mr);
-//       meta->map_pointer = new ibv_mr;
-//       *(meta->map_pointer) = *(meta->mr);
+    for (size_t j = 0; j<list_len; j++){
+      meta->mr = new ibv_mr;
+      meta->mr->context = static_cast<ibv_context*>(context_p);
+      meta->mr->pd = static_cast<ibv_pd*>(pd_p);
+      meta->mr->handle = handle;
+      meta->mr->length = length_mr;
+      //below could be problematic.
+      meta->fname = std::string(filename);
+      mr_deserialization(temp, size, meta->mr);
+      meta->map_pointer = new ibv_mr;
+      *(meta->map_pointer) = *(meta->mr);
 
-//       void* start_key;
-//       memcpy(&start_key, temp, sizeof(void*));
-//       temp = temp + sizeof(void*);
+      void* start_key;
+      memcpy(&start_key, temp, sizeof(void*));
+      temp = temp + sizeof(void*);
 
-//       meta->map_pointer->length = length_map;
-//       meta->map_pointer->addr = start_key;
-//       if (j!=list_len-1){
-//         meta->next_ptr = new SST_Metadata();
-//         meta = meta->next_ptr;
-//       }
+      meta->map_pointer->length = length_map;
+      meta->map_pointer->addr = start_key;
+      if (j!=list_len-1){
+        meta->next_ptr = new SST_Metadata();
+        meta = meta->next_ptr;
+      }
 
-//     }
-//     file_to_sst_meta.insert({std::string(filename), meta_head});
-//   }
-//   //desirialize the Bit map
-//   size_t bitmap_number_net = 0;
-//   memcpy(&bitmap_number_net, temp, sizeof(size_t));
-//   size_t bitmap_number = htonl(bitmap_number_net);
-//   temp = temp + sizeof(size_t);
-//   for (size_t i = 0; i < bitmap_number; i++){
-//     void* p_key;
-//     memcpy(&p_key, temp, sizeof(void*));
-//     temp = temp + sizeof(void*);
-//     size_t element_size_net = 0;
-//     memcpy(&element_size_net, temp, sizeof(size_t));
-//     size_t element_size = htonl(element_size_net);
-//     temp = temp + sizeof(size_t);
-//     size_t chunk_size_net = 0;
-//     memcpy(&chunk_size_net, temp, sizeof(size_t));
-//     size_t chunk_size = htonl(chunk_size_net);
-//     temp = temp + sizeof(size_t);
-//     auto* in_use = new std::atomic<bool>[element_size];
+    }
+    file_to_sst_meta.insert({std::string(filename), meta_head});
+  }
+  //desirialize the Bit map
+  size_t bitmap_number_net = 0;
+  memcpy(&bitmap_number_net, temp, sizeof(size_t));
+  size_t bitmap_number = htonl(bitmap_number_net);
+  temp = temp + sizeof(size_t);
+  for (size_t i = 0; i < bitmap_number; i++){
+    void* p_key;
+    memcpy(&p_key, temp, sizeof(void*));
+    temp = temp + sizeof(void*);
+    size_t element_size_net = 0;
+    memcpy(&element_size_net, temp, sizeof(size_t));
+    size_t element_size = htonl(element_size_net);
+    temp = temp + sizeof(size_t);
+    size_t chunk_size_net = 0;
+    memcpy(&chunk_size_net, temp, sizeof(size_t));
+    size_t chunk_size = htonl(chunk_size_net);
+    temp = temp + sizeof(size_t);
+    auto* in_use = new std::atomic<bool>[element_size];
 
-//     void* context_p = nullptr;
-//     //TODO: It can not be changed into net stream.
-//     memcpy(&context_p, temp, sizeof(void*));
-// //    void* p_net = htonll(context_p);
-//     temp = temp + sizeof(void*);
+    void* context_p = nullptr;
+    //TODO: It can not be changed into net stream.
+    memcpy(&context_p, temp, sizeof(void*));
+//    void* p_net = htonll(context_p);
+    temp = temp + sizeof(void*);
 
-//     void* pd_p = nullptr;
-//     memcpy(&pd_p, temp, sizeof(void*));
-//     temp = temp + sizeof(void*);
+    void* pd_p = nullptr;
+    memcpy(&pd_p, temp, sizeof(void*));
+    temp = temp + sizeof(void*);
 
-//     uint32_t handle_net;
-//     memcpy(&handle_net, temp,  sizeof(uint32_t));
-//     uint32_t handle = htonl(handle_net);
-//     temp = temp + sizeof(uint32_t);
+    uint32_t handle_net;
+    memcpy(&handle_net, temp,  sizeof(uint32_t));
+    uint32_t handle = htonl(handle_net);
+    temp = temp + sizeof(uint32_t);
 
-//     size_t length_mr_net = 0;
-//     memcpy(&length_mr_net, temp, sizeof(size_t));
-//     size_t length_mr = htonl(length_mr_net);
-//     temp = temp + sizeof(size_t);
-//     auto* mr_inuse = new ibv_mr{0};
-//     mr_inuse->context = static_cast<ibv_context*>(context_p);
-//     mr_inuse->pd = static_cast<ibv_pd*>(pd_p);
-//     mr_inuse->handle = handle;
-//     mr_inuse->length = length_mr;
-//     bool bit_temp;
-//     for (size_t j = 0; j < element_size; j++){
-//       memcpy(&bit_temp, temp, sizeof(bool));
-//       in_use[j] = bit_temp;
-//       temp = temp + sizeof(bool);
-//     }
-
-
-
-//     mr_deserialization(temp, size, mr_inuse);
-//     In_Use_Array in_use_array(element_size, chunk_size, mr_inuse, in_use);
-//     remote_mem_bitmap.insert({p_key, in_use_array});
-//   }
-//   auto stop = std::chrono::high_resolution_clock::now();
-//   auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(stop - start);
-//   printf("fs pure deserialization time elapse: %ld\n", duration.count());
-//   ibv_dereg_mr(local_mr);
-//   free(buff);
+    size_t length_mr_net = 0;
+    memcpy(&length_mr_net, temp, sizeof(size_t));
+    size_t length_mr = htonl(length_mr_net);
+    temp = temp + sizeof(size_t);
+    auto* mr_inuse = new ibv_mr{0};
+    mr_inuse->context = static_cast<ibv_context*>(context_p);
+    mr_inuse->pd = static_cast<ibv_pd*>(pd_p);
+    mr_inuse->handle = handle;
+    mr_inuse->length = length_mr;
+    bool bit_temp;
+    for (size_t j = 0; j < element_size; j++){
+      memcpy(&bit_temp, temp, sizeof(bool));
+      in_use[j] = bit_temp;
+      temp = temp + sizeof(bool);
+    }
 
 
-// }
+
+    mr_deserialization(temp, size, mr_inuse);
+    In_Use_Array in_use_array(element_size, chunk_size, mr_inuse, in_use);
+    remote_mem_bitmap.insert({p_key, in_use_array});
+  }
+  auto stop = std::chrono::high_resolution_clock::now();
+  auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(stop - start);
+  printf("fs pure deserialization time elapse: %ld\n", duration.count());
+  ibv_dereg_mr(local_mr);
+  free(buff);
+
+
+}
 
 //UPTO
 //bool RDMA_Manager::client_save_serialized_data(const std::string& db_name,

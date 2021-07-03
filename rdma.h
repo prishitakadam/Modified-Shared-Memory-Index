@@ -198,15 +198,17 @@ class In_Use_Array{
 //     return -1; //Not find the empty memory chunk.
 //   }
 
-SpinMutex spinlock;
+// SpinMutex spinlock;
+std::mutex spinlock;
 int allocate_memory_slot(){
     if(!in_use_->empty()){
       //Spin Lock
-      std::unique_lock<SpinMutex> spinlock.lock();
+      std::unique_lock<std::mutex> lck(spinlock);
       // spinlock.lock();
       int index = in_use_->front();
       in_use_->pop();
-      spinlock.unlock();
+      // spinlock.unlock();
+      lck.unlock();
       return index;
     }
     else{

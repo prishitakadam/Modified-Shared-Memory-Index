@@ -38,6 +38,7 @@
 #include <thread_local.h>
 #include<queue>
 #include<util/mutexlock.h>
+std::mutex spinlock;
 using namespace std;
 //#include <util/thread_local.h>
 //#ifdef __cplusplus
@@ -199,7 +200,6 @@ class In_Use_Array{
 //   }
 
 // SpinMutex spinlock;
-std::mutex spinlock;
 int allocate_memory_slot(){
     if(!in_use_->empty()){
       //Spin Lock

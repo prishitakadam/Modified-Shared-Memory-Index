@@ -225,10 +225,11 @@ int allocate_memory_slot(){
 
 bool deallocate_memory_slot(int index) {
     //USE LOCK
-    SpinMutex spin_lock;
     spin_lock.lock();
-    in_use_->push(index);
-    spin_lock.unlock();
+    // SpinMutex spin_lock;
+    // spin_lock.lock();
+    // in_use_->push(index);
+    // spin_lock.unlock();
     //CHANGE
     return true;
     //return something

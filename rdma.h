@@ -228,7 +228,7 @@ bool deallocate_memory_slot(int index) {
     SpinMutex spin_lock;
     spin_lock.lock();
     in_use_->push(index);
-    spinlock.unlock();
+    spin_lock.unlock();
     //CHANGE
     return true;
     //return something

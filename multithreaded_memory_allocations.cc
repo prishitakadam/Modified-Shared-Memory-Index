@@ -2,7 +2,7 @@
 #include "rdma.h"
 
 size_t thread_num;
-size_t j_size = 100;
+size_t j_size = 2000;
 bool mem_test_start = false;
 size_t mem_thread_ready_num = 0;
 size_t mem_thread_finish_num = 0;
@@ -94,7 +94,7 @@ int main(){
 
     //    std::cout << "block size:\r" << std::endl;
 //    std::cin >> read_block_size;
-    read_block_size = 4096;
+    read_block_size = 1048576;
     //  table_size = read_block_size+64;
 
     std::cout << "Thread Num:\r" << std::endl;

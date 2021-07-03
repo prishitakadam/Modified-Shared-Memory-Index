@@ -148,7 +148,7 @@ struct atomwrapper
   }
 };
 
-std::mutex spinlock;
+
 class In_Use_Array{
  public:
   In_Use_Array(size_t size, size_t chunk_size, ibv_mr* mr_ori)
@@ -199,6 +199,7 @@ class In_Use_Array{
 //   }
 
 // SpinMutex spinlock;
+std::mutex spinlock;
 int allocate_memory_slot(){
     if(!in_use_->empty()){
       //Spin Lock

@@ -38,7 +38,6 @@
 #include <thread_local.h>
 #include<queue>
 #include<util/mutexlock.h>
-std::mutex spinlock;
 using namespace std;
 //#include <util/thread_local.h>
 //#ifdef __cplusplus
@@ -149,7 +148,7 @@ struct atomwrapper
   }
 };
 
-
+std::mutex spinlock;
 class In_Use_Array{
  public:
   In_Use_Array(size_t size, size_t chunk_size, ibv_mr* mr_ori)

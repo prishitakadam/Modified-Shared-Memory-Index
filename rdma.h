@@ -202,7 +202,7 @@ SpinMutex spinlock;
 int allocate_memory_slot(){
     if(!in_use_->empty()){
       //Spin Lock
-      std::unique_lock<std::mutex> spinlock.lock();
+      std::unique_lock<SpinMutex> spinlock.lock();
       // spinlock.lock();
       int index = in_use_->front();
       in_use_->pop();

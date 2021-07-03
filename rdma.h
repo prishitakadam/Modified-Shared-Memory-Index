@@ -148,6 +148,7 @@ struct atomwrapper
   }
 };
 
+SpinMutex spinlock;
 
 class In_Use_Array{
  public:
@@ -198,7 +199,7 @@ class In_Use_Array{
 //     return -1; //Not find the empty memory chunk.
 //   }
 
-SpinMutex spinlock;
+// SpinMutex spinlock;
 int allocate_memory_slot(){
     if(!in_use_->empty()){
       //Spin Lock

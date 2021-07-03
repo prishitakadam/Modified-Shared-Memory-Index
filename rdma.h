@@ -202,6 +202,10 @@ int allocate_memory_slot(){
     if(!in_use_->empty()){
       int index = in_use_->front();
       //USE LOCK
+      SpinMutex spinlock;
+      if(spinlock.try_lock()){
+        cout<<"true";
+      }
       in_use_->pop();
       return index;
     }

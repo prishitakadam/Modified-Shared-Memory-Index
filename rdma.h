@@ -200,13 +200,11 @@ class In_Use_Array{
 
 int allocate_memory_slot(){
     if(!in_use_->empty()){
-      int index = in_use_->front();
-      //USE LOCK
       SpinMutex spinlock;
-      if(spinlock.try_lock()){
-        cout<<"true";
-      }
+      spinlock.lock();
+      int index = in_use_->front();
       in_use_->pop();
+      spinlock.unlock();
       return index;
     }
     else{

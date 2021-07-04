@@ -198,7 +198,7 @@ class In_Use_Array{
 //     }
 //     return -1; //Not find the empty memory chunk.
 //   }
-SpinMutex spinlock = new SpinMutex();
+SpinMutex spinlock;
 int allocate_memory_slot(){
     if(!in_use_->empty()){
       spinlock.lock();
@@ -222,7 +222,7 @@ int allocate_memory_slot(){
 
 //   }
 
-SpinMutex sp = new SpinMutex();
+SpinMutex sp;
 bool deallocate_memory_slot(int index) {
     sp.lock();
     in_use_->push(index);

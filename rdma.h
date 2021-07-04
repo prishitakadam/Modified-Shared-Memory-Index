@@ -202,6 +202,7 @@ int allocate_memory_slot(){
     SpinMutex spinlock = new SpinMutex();
     if(!in_use_->empty()){
       //Spin Lock
+      
       spinlock.lock();
       int index = in_use_->front();
       in_use_->pop();

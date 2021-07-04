@@ -236,11 +236,10 @@ int allocate_memory_slot(){
 
 //   }
 
-SpinMutex sp;
 bool deallocate_memory_slot(int index) {
-    sp.lock();
+    spinlock.lock();
     in_use_->push(index);
-    sp.unlock();
+    spinlock.unlock();
     return true;
     //return something
   }

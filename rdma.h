@@ -198,6 +198,20 @@ class In_Use_Array{
 //     }
 //     return -1; //Not find the empty memory chunk.
 //   }
+// SpinMutex spinlock;
+// int allocate_memory_slot(){
+//     if(!in_use_->empty()){
+//       spinlock.lock();
+//       int index = in_use_->front();
+//       in_use_->pop();
+//       spinlock.unlock();
+//       return index;
+//     }
+//     else{
+//       return -1;
+//     }
+//   }
+
 SpinMutex spinlock;
 int allocate_memory_slot(){
     if(!in_use_->empty()){

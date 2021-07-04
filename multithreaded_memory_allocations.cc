@@ -94,7 +94,8 @@ int main(){
 
     //    std::cout << "block size:\r" << std::endl;
 //    std::cin >> read_block_size;
-    read_block_size = 1048576;
+    // read_block_size = 1048576;
+    read_block_size = 4096;
     // read_block_size = 4096;
     //  table_size = read_block_size+64;
 

@@ -199,7 +199,7 @@ class In_Use_Array{
 //     return -1; //Not find the empty memory chunk.
 //   }
 int allocate_memory_slot(){
-    SpinMutex spinlock;
+    SpinMutex spinlock = new SpinMutex();
     if(!in_use_->empty()){
       //Spin Lock
       spinlock.lock();

@@ -165,8 +165,6 @@ class In_Use_Array{
       in_use_->push(i);
     }
 
-    SpinMutex spinlock;
-
   }
   //OLD
   // In_Use_Array(size_t size, size_t chunk_size, ibv_mr* mr_ori, std::atomic<bool>* in_use)
@@ -201,7 +199,7 @@ class In_Use_Array{
 //     return -1; //Not find the empty memory chunk.
 //   }
 
-// SpinMutex spinlock;
+SpinMutex spinlock;
 int allocate_memory_slot(){
     if(!in_use_->empty()){
       //Spin Lock

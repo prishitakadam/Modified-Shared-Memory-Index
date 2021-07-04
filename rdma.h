@@ -199,13 +199,9 @@ class In_Use_Array{
 //     return -1; //Not find the empty memory chunk.
 //   }
 int allocate_memory_slot(){
-    // SpinMutex spinlock = new SpinMutex();
     if(!in_use_->empty()){
-      //Spin Lock
-      // spinlock.lock();
       int index = in_use_->front();
       in_use_->pop();
-      // spinlock.unlock();
       return index;
     }
     else{
@@ -223,20 +219,10 @@ int allocate_memory_slot(){
 
 //   }
 
-// SpinMutex sp;
 bool deallocate_memory_slot(int index) {
-    //USE LOCK
-    // sp.lock();
     in_use_->push(index);
-    // sp.unlock();
-    // SpinMutex spin_lock;
-    // spin_lock.lock();
-    // in_use_->push(index);
-    // spin_lock.unlock();
-    //CHANGE
     return true;
     //return something
-
   }
 
   size_t get_chunk_size(){

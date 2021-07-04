@@ -198,7 +198,12 @@ class In_Use_Array{
 //     }
 //     return -1; //Not find the empty memory chunk.
 //   }
+<<<<<<< HEAD
 // SpinMutex spinlock;
+=======
+
+SpinMutex spinlock;
+>>>>>>> parent of 4942bbe... Both Lock Implemented
 int allocate_memory_slot(){
     if(!in_use_->empty()){
       //Spin Lock

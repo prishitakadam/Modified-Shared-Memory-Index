@@ -1,4 +1,5 @@
 #include <rdma.h>
+#include<util/mutexlock.h>
 void UnrefHandle_rdma(void* ptr){
     delete static_cast<std::string*>(ptr);
 }
@@ -1859,11 +1860,14 @@ void RDMA_Manager::Allocate_Remote_RDMA_Slot(ibv_mr *&remote_mr) {
   std::shared_lock<std::shared_mutex> mem_read_lock(remote_mem_mutex);
   auto ptr = Remote_Mem_Bitmap->begin();
 
+  //SPIN LOCK
+  SpinMutex spinlock;
   while (ptr != Remote_Mem_Bitmap->end()) {
     // iterate among all the remote memory region
     // find the first empty SSTable Placeholder's iterator, iterator->first is ibv_mr*
     // second is the bool vector for this ibv_mr*. Each ibv_mr is the origin block get
     // from the remote memory. The memory was divided into chunks with size == SSTable size.
+    spinlock.lock();
     int sst_index = ptr->second.allocate_memory_slot();
     if (sst_index >= 0) {
       *(remote_mr) = *((ptr->second).get_mr_ori());
@@ -1878,6 +1882,7 @@ void RDMA_Manager::Allocate_Remote_RDMA_Slot(ibv_mr *&remote_mr) {
 #ifndef NDEBUG
 //      std::cout <<"Chunk allocate at" << sst_meta->mr->addr <<"index :" << sst_index << "name: " << sst_meta->fname << std::endl;
 #endif
+      spinlock.unlock();
       return;
     } else
       ptr++;
@@ -1899,6 +1904,7 @@ void RDMA_Manager::Allocate_Remote_RDMA_Slot(ibv_mr *&remote_mr) {
     remote_mr->length = Table_Size;
 //    remote_mr->fname = file_name;
 //    remote_mr->map_pointer = mr_last;
+  spinlock.unlock();
   return;
 }
 // A function try to allocate RDMA registered local memory
@@ -1918,12 +1924,14 @@ void RDMA_Manager::Allocate_Local_RDMA_Slot(ibv_mr *&mr_input, std::string pool_
   std::shared_lock<std::shared_mutex> mem_read_lock(local_mem_mutex);
   auto ptr = name_to_mem_pool.at(pool_name).begin();
 
+  SpinMutex spinlock;
   while (ptr != name_to_mem_pool.at(pool_name).end()) {
     size_t region_chunk_size = ptr->second.get_chunk_size();
     if (region_chunk_size != chunk_size) {
       ptr++;
       continue;
     }
+    spinlock.lock();
     int block_index = ptr->second.allocate_memory_slot();
     if (block_index >= 0) {
       mr_input = new ibv_mr();
@@ -1933,6 +1941,7 @@ void RDMA_Manager::Allocate_Local_RDMA_Slot(ibv_mr *&mr_input, std::string pool_
                                           block_index * chunk_size);
       mr_input->length = chunk_size;
 
+      spinlock.unlock();
       return;
     } else
       ptr++;
@@ -1960,6 +1969,7 @@ void RDMA_Manager::Allocate_Local_RDMA_Slot(ibv_mr *&mr_input, std::string pool_
                                         block_index * chunk_size);
     mr_input->length = chunk_size;
     //  mr_input.fname = file_name;
+    spinlock.unlock();
     return;
   }
 

@@ -147,9 +147,6 @@ struct atomwrapper
     _a.store(other._a.load());
   }
 };
-
-// SpinMutex spinlock;
-
 class In_Use_Array{
  public:
   In_Use_Array(size_t size, size_t chunk_size, ibv_mr* mr_ori)

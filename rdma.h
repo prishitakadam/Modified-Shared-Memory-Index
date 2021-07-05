@@ -209,7 +209,7 @@ class In_Use_Array{
 //     }
 //   }
 
-SpinMutex spinlock = new SpinMutex();
+SpinMutex spinlock;
 int allocate_memory_slot(){
     if(!in_use_->empty()){
       spinlock.lock();

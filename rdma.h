@@ -147,6 +147,7 @@ struct atomwrapper
     _a.store(other._a.load());
   }
 };
+
 class In_Use_Array{
  public:
   In_Use_Array(size_t size, size_t chunk_size, ibv_mr* mr_ori)
@@ -195,27 +196,14 @@ class In_Use_Array{
 //     }
 //     return -1; //Not find the empty memory chunk.
 //   }
-// SpinMutex spinlock;
-// int allocate_memory_slot(){
-//     if(!in_use_->empty()){
-//       spinlock.lock();
-//       int index = in_use_->front();
-//       in_use_->pop();
-//       spinlock.unlock();
-//       return index;
-//     }
-//     else{
-//       return -1;
-//     }
-//   }
 
-SpinMutex spinlock;
+// SpinMutex spinlock;
 int allocate_memory_slot(){
     if(!in_use_->empty()){
-      spinlock.lock();
+      // spinlock.lock();
       int index = in_use_->front();
       in_use_->pop();
-      spinlock.unlock();
+      // spinlock.unlock();
       return index;
     }
     else{
@@ -234,9 +222,9 @@ int allocate_memory_slot(){
 //   }
 
 bool deallocate_memory_slot(int index) {
-    spinlock.lock();
+    // spinlock.lock();
     in_use_->push(index);
-    spinlock.unlock();
+    // spinlock.unlock();
     return true;
     //return something
   }

@@ -197,13 +197,13 @@ class In_Use_Array{
 //     return -1; //Not find the empty memory chunk.
 //   }
 
-// SpinMutex spinlock;
+SpinMutex spinlock;
 int allocate_memory_slot(){
     if(!in_use_->empty()){
-      // spinlock.lock();
+      spinlock.lock();
       int index = in_use_->front();
       in_use_->pop();
-      // spinlock.unlock();
+      spinlock.unlock();
       return index;
     }
     else{
@@ -222,9 +222,9 @@ int allocate_memory_slot(){
 //   }
 
 bool deallocate_memory_slot(int index) {
-    // spinlock.lock();
+    spinlock.lock();
     in_use_->push(index);
-    // spinlock.unlock();
+    spinlock.unlock();
     return true;
     //return something
   }
@@ -446,7 +446,7 @@ class RDMA_Manager{
     ThreadLocalPtr* cq_local;
 //  thread_local static std::unique_ptr<ibv_qp, QP_Deleter> qp_local;
 //  thread_local static std::unique_ptr<ibv_cq, CQ_Deleter> cq_local;
-  std::unordered_map<std::string, std::map<void*, In_Use_Array>> name_to_mem_pool;
+  std::unordered_map<std::string, std::map<void*, In_Use_Array*>> name_to_mem_pool;
   std::unordered_map<std::string, size_t> name_to_size;
   std::shared_mutex local_mem_mutex;
 //  std::unordered_map<std::string, ibv_mr*> fs_image;

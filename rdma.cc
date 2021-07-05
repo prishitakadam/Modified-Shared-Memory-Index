@@ -607,7 +607,7 @@ bool RDMA_Manager::Local_Memory_Register(char** p2buffpointer,
     // TODO: Modify it to allocate the memory according to the memory chunk types
 
     name_to_mem_pool.at(pool_name).insert(
-        {(*p2mrpointer)->addr, in_use_array});
+        {(*p2mrpointer)->addr, &in_use_array});
   }
 //  else
 //    printf("RDMA bitmap insert error");

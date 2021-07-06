@@ -51,7 +51,7 @@ RDMA_Manager::RDMA_Manager(config_t config, size_t remote_block_size)
 //  log_image_mr.reset(ibv_reg_mr(res->pd, buff, 1024*1024, mr_flags));
 
   //  res->sock = -1;
-  Remote_Mem_Bitmap = new std::map<void*, In_Use_Array>;
+  Remote_Mem_Bitmap = new std::map<void*, In_Use_Array*>;
 //  Write_Local_Mem_Bitmap = Write_Bitmap;
 //  Read_Local_Mem_Bitmap = Read_Bitmap;
 }
@@ -1762,7 +1762,7 @@ bool RDMA_Manager::Remote_Memory_Register(size_t size) {
     int placeholder_num =static_cast<int>(temp_pointer->length) /(Table_Size);  // here we supposing the SSTables are 4 megabytes
     In_Use_Array in_use_array(placeholder_num, Table_Size, temp_pointer);
 //    std::unique_lock l(remote_pool_mutex);
-    Remote_Mem_Bitmap->insert({temp_pointer->addr, in_use_array*});
+    Remote_Mem_Bitmap->insert({temp_pointer->addr, &in_use_array});
 //    l.unlock();
 
     // NOTICE: Couold be problematic because the pushback may not an absolute
@@ -1979,7 +1979,7 @@ bool RDMA_Manager::Deallocate_Local_RDMA_Slot(ibv_mr* mr, ibv_mr* map_pointer,
 }
 bool RDMA_Manager::Deallocate_Local_RDMA_Slot(void* p, std::string buff_type) {
   std::shared_lock<std::shared_mutex> read_lock(local_mem_mutex);
-  std::map<void*, In_Use_Array> Bitmap;
+  std::map<void*, In_Use_Array*> Bitmap;
   Bitmap = name_to_mem_pool.at(buff_type);
   auto mr_iter = Bitmap.upper_bound(p);
   if(mr_iter == Bitmap.begin()){
@@ -2002,7 +2002,7 @@ bool RDMA_Manager::Deallocate_Local_RDMA_Slot(void* p, std::string buff_type) {
 }
 bool RDMA_Manager::Deallocate_Remote_RDMA_Slot(void *p) {
     std::shared_lock<std::shared_mutex> read_lock(remote_mem_mutex);
-    std::map<void*, In_Use_Array>* Bitmap;
+    std::map<void*, In_Use_Array*>* Bitmap;
     Bitmap = Remote_Mem_Bitmap;
     auto mr_iter = Bitmap->upper_bound(p);
     if (mr_iter == Bitmap->begin()) {
@@ -2042,8 +2042,8 @@ bool RDMA_Manager::Deallocate_Remote_RDMA_Slot(void *p) {
 //}
 
 bool RDMA_Manager::CheckInsideLocalBuff(
-    void* p, std::_Rb_tree_iterator<std::pair<void * const, In_Use_Array>>& mr_iter,
-    std::map<void*, In_Use_Array>* Bitmap) {
+    void* p, std::_Rb_tree_iterator<std::pair<void * const, In_Use_Array*>>& mr_iter,
+    std::map<void*, In_Use_Array*>* Bitmap) {
   std::shared_lock<std::shared_mutex> read_lock(local_mem_mutex);
   if (Bitmap != nullptr){
     mr_iter = Bitmap->upper_bound(p);
@@ -2071,11 +2071,11 @@ bool RDMA_Manager::CheckInsideLocalBuff(
 }
 
 bool RDMA_Manager::Mempool_initialize(std::string pool_name, size_t size) {
-  std::map<void*, In_Use_Array> mem_sub_pool;
+  std::map<void*, In_Use_Array*> mem_sub_pool;
   //check whether pool name has already exist.
   if (name_to_mem_pool.find(pool_name) != name_to_mem_pool.end())
     return false;
-  name_to_mem_pool.insert(std::pair<std::string, std::map<void*, In_Use_Array>>({pool_name, mem_sub_pool}));
+  name_to_mem_pool.insert(std::pair<std::string, std::map<void*, In_Use_Array*>>({pool_name, mem_sub_pool}));
   name_to_size.insert({pool_name, size});
   return true;
 }

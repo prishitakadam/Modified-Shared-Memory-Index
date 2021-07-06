@@ -408,8 +408,8 @@ class RDMA_Manager{
   void Allocate_Remote_RDMA_Slot(ibv_mr *&remote_mr);
   void Allocate_Local_RDMA_Slot(ibv_mr *&mr_input, std::string pool_name);
   // this function will determine whether the pointer is with in the registered memory
-  bool CheckInsideLocalBuff(void* p, std::_Rb_tree_iterator<std::pair<void * const, In_Use_Array>>& mr_iter,
-                            std::map<void*, In_Use_Array>* Bitmap);
+  bool CheckInsideLocalBuff(void* p, std::_Rb_tree_iterator<std::pair<void * const, In_Use_Array*>>& mr_iter,
+                            std::map<void*, In_Use_Array*>* Bitmap);
   // void mr_serialization(char*& temp, size_t& size, ibv_mr* mr);
   // void mr_deserialization(char*& temp, size_t& size, ibv_mr*& mr);
 
@@ -425,7 +425,7 @@ class RDMA_Manager{
   resources* res = nullptr;
   std::vector<ibv_mr*> remote_mem_pool; /* a vector for all the remote memory regions*/
   std::vector<ibv_mr*> local_mem_pool; /* a vector for all the local memory regions.*/
-  std::map<void*, In_Use_Array>* Remote_Mem_Bitmap;
+  std::map<void*, In_Use_Array*>* Remote_Mem_Bitmap;
 
 //  std::shared_mutex remote_pool_mutex;
 //  std::map<void*, In_Use_Array>* Write_Local_Mem_Bitmap = nullptr;

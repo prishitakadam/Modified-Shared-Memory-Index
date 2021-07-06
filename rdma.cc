@@ -1864,9 +1864,9 @@ void RDMA_Manager::Allocate_Remote_RDMA_Slot(ibv_mr *&remote_mr) {
     // find the first empty SSTable Placeholder's iterator, iterator->first is ibv_mr*
     // second is the bool vector for this ibv_mr*. Each ibv_mr is the origin block get
     // from the remote memory. The memory was divided into chunks with size == SSTable size.
-    int sst_index = ptr->second.allocate_memory_slot();
+    int sst_index = ptr->second->allocate_memory_slot();
     if (sst_index >= 0) {
-      *(remote_mr) = *((ptr->second).get_mr_ori());
+      *(remote_mr) = *((ptr->second)->get_mr_ori());
         remote_mr->addr = static_cast<void*>(
           static_cast<char*>(remote_mr->addr) + sst_index * Table_Size);
         remote_mr->length = Table_Size;
@@ -1889,7 +1889,7 @@ void RDMA_Manager::Allocate_Remote_RDMA_Slot(ibv_mr *&remote_mr) {
 //  fs_meta_save();
   ibv_mr* mr_last;
   mr_last = remote_mem_pool.back();
-  int sst_index = Remote_Mem_Bitmap->at(mr_last->addr).allocate_memory_slot();
+  int sst_index = Remote_Mem_Bitmap->at(mr_last->addr)->allocate_memory_slot();
   mem_write_lock.unlock();
 
   //  sst_meta->mr = new ibv_mr();
@@ -1919,16 +1919,16 @@ void RDMA_Manager::Allocate_Local_RDMA_Slot(ibv_mr *&mr_input, std::string pool_
   auto ptr = name_to_mem_pool.at(pool_name).begin();
 
   while (ptr != name_to_mem_pool.at(pool_name).end()) {
-    size_t region_chunk_size = ptr->second.get_chunk_size();
+    size_t region_chunk_size = ptr->second->get_chunk_size();
     if (region_chunk_size != chunk_size) {
       ptr++;
       continue;
     }
-    int block_index = ptr->second.allocate_memory_slot();
+    int block_index = ptr->second->allocate_memory_slot();
     if (block_index >= 0) {
       mr_input = new ibv_mr();
 //      map_pointer = (ptr->second).get_mr_ori();
-      *(mr_input) = *((ptr->second).get_mr_ori());
+      *(mr_input) = *((ptr->second)->get_mr_ori());
       mr_input->addr = static_cast<void*>(static_cast<char*>(mr_input->addr) +
                                           block_index * chunk_size);
       mr_input->length = chunk_size;
@@ -1950,7 +1950,7 @@ void RDMA_Manager::Allocate_Local_RDMA_Slot(ibv_mr *&mr_input, std::string pool_
                         pool_name);
 
 
-  int block_index = name_to_mem_pool.at(pool_name).at(mr_to_allocate->addr).allocate_memory_slot();
+  int block_index = name_to_mem_pool.at(pool_name).at(mr_to_allocate->addr)->allocate_memory_slot();
   mem_write_lock.unlock();
   if (block_index >= 0) {
     mr_input = new ibv_mr();
@@ -1973,7 +1973,7 @@ bool RDMA_Manager::Deallocate_Local_RDMA_Slot(ibv_mr* mr, ibv_mr* map_pointer,
   assert(buff_offset % chunksize == 0);
   std::shared_lock<std::shared_mutex> read_lock(local_mem_mutex);
   return name_to_mem_pool.at(buffer_type).at(map_pointer->addr)
-      .deallocate_memory_slot(buff_offset / chunksize);
+      ->deallocate_memory_slot(buff_offset / chunksize);
 
 
 }
@@ -1988,15 +1988,15 @@ bool RDMA_Manager::Deallocate_Local_RDMA_Slot(void* p, std::string buff_type) {
     mr_iter--;
     size_t buff_offset = static_cast<char*>(p) - static_cast<char*>(mr_iter->first);
 //      assert(buff_offset>=0);
-    if (buff_offset < mr_iter->second.get_mr_ori()->length)
-      return mr_iter->second.deallocate_memory_slot(buff_offset / mr_iter->second.get_chunk_size());
+    if (buff_offset < mr_iter->second->get_mr_ori()->length)
+      return mr_iter->second->deallocate_memory_slot(buff_offset / mr_iter->second->get_chunk_size());
     else
       return false;
   }else{
     size_t buff_offset = static_cast<char*>(p) - static_cast<char*>(mr_iter->first);
 //      assert(buff_offset>=0);
-    if (buff_offset < mr_iter->second.get_mr_ori()->length)
-      return mr_iter->second.deallocate_memory_slot(buff_offset / mr_iter->second.get_chunk_size());
+    if (buff_offset < mr_iter->second->get_mr_ori()->length)
+      return mr_iter->second->deallocate_memory_slot(buff_offset / mr_iter->second->get_chunk_size());
   }
   return false;
 }
@@ -2012,9 +2012,9 @@ bool RDMA_Manager::Deallocate_Remote_RDMA_Slot(void *p) {
         size_t buff_offset =
                 static_cast<char*>(p) - static_cast<char*>(mr_iter->first);
         //      assert(buff_offset>=0);
-        if (buff_offset < mr_iter->second.get_mr_ori()->length)
-            return mr_iter->second.deallocate_memory_slot(
-                    buff_offset / mr_iter->second.get_chunk_size());
+        if (buff_offset < mr_iter->second->get_mr_ori()->length)
+            return mr_iter->second->deallocate_memory_slot(
+                    buff_offset / mr_iter->second->get_chunk_size());
         else
             return false;
     } else {
@@ -2022,9 +2022,9 @@ bool RDMA_Manager::Deallocate_Remote_RDMA_Slot(void *p) {
         size_t buff_offset =
                 static_cast<char*>(p) - static_cast<char*>(mr_iter->first);
         //      assert(buff_offset>=0);
-        if (buff_offset < mr_iter->second.get_mr_ori()->length)
-            return mr_iter->second.deallocate_memory_slot(
-                    buff_offset / mr_iter->second.get_chunk_size());
+        if (buff_offset < mr_iter->second->get_mr_ori()->length)
+            return mr_iter->second->deallocate_memory_slot(
+                    buff_offset / mr_iter->second->get_chunk_size());
     }
     return false;
 }
@@ -2053,14 +2053,14 @@ bool RDMA_Manager::CheckInsideLocalBuff(
       mr_iter--;
       size_t buff_offset = static_cast<char*>(p) - static_cast<char*>(mr_iter->first);
 //      assert(buff_offset>=0);
-      if (buff_offset < mr_iter->second.get_mr_ori()->length)
+      if (buff_offset < mr_iter->second->get_mr_ori()->length)
         return true;
       else
         return false;
     }else{
       size_t buff_offset = static_cast<char*>(p) - static_cast<char*>(mr_iter->first);
 //      assert(buff_offset>=0);
-      if (buff_offset < mr_iter->second.get_mr_ori()->length)
+      if (buff_offset < mr_iter->second->get_mr_ori()->length)
         return true;
     }
   }else{

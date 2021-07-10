@@ -602,7 +602,7 @@ bool RDMA_Manager::Local_Memory_Register(char** p2buffpointer,
         (*p2mrpointer)->length /
         (name_to_size.at(
             pool_name));  // here we supposing the SSTables are 4 megabytes
-    In_Use_Array in_use_array(placeholder_num, name_to_size.at(pool_name),
+    In_Use_Array in_use_array = new In_Use_Array(placeholder_num, name_to_size.at(pool_name),
                               *p2mrpointer);
     // TODO: Modify it to allocate the memory according to the memory chunk types
 
@@ -1760,7 +1760,7 @@ bool RDMA_Manager::Remote_Memory_Register(size_t size) {
 
     // push the bitmap of the new registed buffer to the bitmap vector in resource.
     int placeholder_num =static_cast<int>(temp_pointer->length) /(Table_Size);  // here we supposing the SSTables are 4 megabytes
-    In_Use_Array in_use_array(placeholder_num, Table_Size, temp_pointer);
+    In_Use_Array in_use_array = new In_Use_Array(placeholder_num, Table_Size, temp_pointer);
 //    std::unique_lock l(remote_pool_mutex);
     Remote_Mem_Bitmap->insert({temp_pointer->addr, &in_use_array});
 //    l.unlock();

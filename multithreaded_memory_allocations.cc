@@ -11,7 +11,7 @@ std::mutex mem_startmtx;
 std::mutex mem_finishmtx;
 std::condition_variable mem_cv;
 
-void mulithreaded_memory_allocations(RDMA_Manager *rdma_manager, ibv_mr *RDMA_remote_chunks, ibv_mr *RDMA_remote_chunks, size_t msg_size){
+void mulithreaded_memory_allocations(RDMA_Manager *rdma_manager, ibv_mr *remote_chunks, ibv_mr *local_chunks, size_t msg_size){
     std::unique_lock<std::mutex> mem_lck_start(mem_startmtx);
     mem_thread_ready_num++;
     std::cout<<"Created "<<mem_thread_ready_num<< "\n";
@@ -30,11 +30,11 @@ void mulithreaded_memory_allocations(RDMA_Manager *rdma_manager, ibv_mr *RDMA_re
     // ibv_mr* RDMA_remote_chunks[thread_num][j_size];
     
     for(size_t j= 0; j< j_size; j++){//j should be bigger value
-        rdma_manager->Allocate_Remote_RDMA_Slot(RDMA_remote_chunks[j]);
+        rdma_manager->Allocate_Remote_RDMA_Slot(remote_chunks[j]);
 
-        rdma_manager->Allocate_Local_RDMA_Slot(RDMA_local_chunks[j], std::string("test"));
+        rdma_manager->Allocate_Local_RDMA_Slot(local_chunks[j], std::string("test"));
         // size_t msg_size = read_block_size;
-        memset(RDMA_local_chunks[j]->addr,1,msg_size);
+        memset(local_chunks[j]->addr,1,msg_size);
     }
 
 

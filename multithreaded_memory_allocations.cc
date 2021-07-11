@@ -34,7 +34,7 @@ void mulithreaded_memory_allocations(RDMA_Manager *rdma_manager, ibv_mr *RDMA_re
 
         rdma_manager->Allocate_Local_RDMA_Slot(RDMA_local_chunks[j], std::string("test"));
         // size_t msg_size = read_block_size;
-        memset(RDMA_local_chunks[i][j]->addr,1,msg_size);
+        memset(RDMA_local_chunks[j]->addr,1,msg_size);
     }
 
 

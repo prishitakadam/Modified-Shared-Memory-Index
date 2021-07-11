@@ -2,7 +2,7 @@
 #include "rdma.h"
 
 size_t thread_num;
-size_t j_size = 2000;
+// size_t j_size = 2000;
 bool mem_test_start = false;
 size_t mem_thread_ready_num = 0;
 size_t mem_thread_finish_num = 0;
@@ -29,7 +29,7 @@ void mulithreaded_memory_allocations(RDMA_Manager *rdma_manager, ibv_mr **remote
     // ibv_mr* RDMA_local_chunks[thread_num][j_size];
     // ibv_mr* RDMA_remote_chunks[thread_num][j_size];
     
-    for(size_t j= 0; j< j_size; j++){//j should be bigger value
+    for(size_t j= 0; j< 2000; j++){//j should be bigger value
         rdma_manager->Allocate_Remote_RDMA_Slot(remote_chunks[j]);
 
         rdma_manager->Allocate_Local_RDMA_Slot(local_chunks[j], std::string("test"));
@@ -108,8 +108,8 @@ int main(){
 
     rdma_manager->Mempool_initialize(std::string("test"), read_block_size);
     
-    ibv_mr* RDMA_local_chunks[thread_num][j_size];
-    ibv_mr* RDMA_remote_chunks[thread_num][j_size];
+    ibv_mr* RDMA_local_chunks[thread_num][2000];
+    ibv_mr* RDMA_remote_chunks[thread_num][2000];
     
     long int starts;
     long int ends;

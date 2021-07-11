@@ -137,7 +137,7 @@ int main(){
     ends  = std::chrono::high_resolution_clock::now().time_since_epoch().count();
     printf("Thread has finished \n");
     mem_l_e.unlock();
-    double throughput = ((double)j_size*thread_num)/(ends-starts);
+    double throughput = ((double)2000*thread_num)/(ends-starts);
     // double bandwidth = ((double)read_block_size*thread_num*iteration) / (ends-starts) * 1000;
     // double latency = ((double) (ends-starts)) / (thread_num * iteration);
     std::cout << "Throughput is " << throughput << "M/s" << std::endl;

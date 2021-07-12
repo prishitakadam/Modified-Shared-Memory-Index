@@ -2,7 +2,7 @@
 #include "rdma.h"
 
 size_t thread_num;
-size_t j_size = 2000;
+size_t j_size = 100;
 bool mem_test_start = false;
 size_t mem_thread_ready_num = 0;
 size_t mem_thread_finish_num = 0;

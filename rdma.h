@@ -199,8 +199,8 @@ class In_Use_Array{
 
 SpinMutex spinlock;
 int allocate_memory_slot(){
+    spinlock.lock();
     if(!in_use_->empty()){
-      spinlock.lock();
       //index
       int index = in_use_->front();
       in_use_->pop();
@@ -208,6 +208,7 @@ int allocate_memory_slot(){
       return index;
     }
     else{
+      spinlock.unlock();
       return -1;
     }
   }

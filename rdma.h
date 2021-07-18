@@ -228,7 +228,7 @@ bool deallocate_memory_slot(int index) {
     std::unique_lock<std::mutex> start_lock(startmtx);
     in_use_->push(index);
     start_lock.unlock();
-    return true;
+    return false;
     //return something
   }
 

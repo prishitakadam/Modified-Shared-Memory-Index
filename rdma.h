@@ -38,6 +38,7 @@
 #include <thread_local.h>
 #include<queue>
 #include<util/mutexlock.h>
+std::mutex startmtx;
 using namespace std;
 //#include <util/thread_local.h>
 //#ifdef __cplusplus
@@ -197,18 +198,18 @@ class In_Use_Array{
 //     return -1; //Not find the empty memory chunk.
 //   }
 
-SpinMutex spinlock;
+// SpinMutex spinlock;
 int allocate_memory_slot(){
-    spinlock.lock();
+    // spinlock.lock();
+    std::unique_lock<std::mutex> start_lock(startmtx);
     if(!in_use_->empty()){
-
       int index = in_use_->front();
       in_use_->pop();
-      spinlock.unlock();
+      start_lock.unlock();
       return index;
     }
     else{
-      spinlock.unlock();
+      start_lock.unlock();
       return -1;
     }
   }
@@ -224,9 +225,9 @@ int allocate_memory_slot(){
 //   }
 
 bool deallocate_memory_slot(int index) {
-    spinlock.lock();
+    std::unique_lock<std::mutex> start_lock(startmtx);
     in_use_->push(index);
-    spinlock.unlock();
+    start_lock.unlock();
     return true;
     //return something
   }

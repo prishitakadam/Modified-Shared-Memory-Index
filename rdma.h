@@ -52,7 +52,7 @@ using namespace std;
 
 
 #if __BYTE_ORDER == __LITTLE_ENDIAN
-std::queue<unsigned int>* in_use_;
+std::queue<long long int>* in_use_;
 //template <typename T>
 //  static inline T hton(T u) {
 //  static_assert (CHAR_BIT == 8, "CHAR_BIT != 8");
@@ -201,11 +201,11 @@ class In_Use_Array{
 //   }
 
 // SpinMutex spinlock;
-int allocate_memory_slot(){
+long long int allocate_memory_slot(){
     // spinlock.lock();
     std::unique_lock<std::mutex> start_lock(startmtx);
     if(!in_use_->empty()){
-      unsigned int index = in_use_->front();
+      long long int index = in_use_->front();
       in_use_->pop();
       start_lock.unlock();
       return index;
@@ -226,7 +226,7 @@ int allocate_memory_slot(){
 
 //   }
 
-bool deallocate_memory_slot(int index) {
+bool deallocate_memory_slot(long long int index) {
     std::unique_lock<std::mutex> start_lock(startmtx);
     in_use_->push(index);
     start_lock.unlock();
@@ -247,7 +247,7 @@ bool deallocate_memory_slot(int index) {
   // std::atomic<bool>* get_inuse_table(){
   //   return in_use_;
   // }
-   std::queue<unsigned int>* get_inuse_table(){
+   std::queue<long long int>* get_inuse_table(){
     return in_use_;
   }
 //  void deserialization(char*& temp, int& size){

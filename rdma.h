@@ -258,7 +258,7 @@ bool deallocate_memory_slot(int index) {
   size_t chunk_size_;
   //OLD
   // std::atomic<bool>* in_use_;
-  std::queue<int>* in_use_;
+  // std::queue<int>* in_use_;
   ibv_mr* mr_ori_;
 //  int type_;
 };

@@ -52,7 +52,7 @@ using namespace std;
 
 
 #if __BYTE_ORDER == __LITTLE_ENDIAN
-std::queue<int>* in_use_;
+std::queue<unsigned int>* in_use_;
 //template <typename T>
 //  static inline T hton(T u) {
 //  static_assert (CHAR_BIT == 8, "CHAR_BIT != 8");
@@ -205,7 +205,7 @@ int allocate_memory_slot(){
     // spinlock.lock();
     std::unique_lock<std::mutex> start_lock(startmtx);
     if(!in_use_->empty()){
-      int index = in_use_->front();
+      unsigned int index = in_use_->front();
       in_use_->pop();
       start_lock.unlock();
       return index;

@@ -1864,7 +1864,7 @@ void RDMA_Manager::Allocate_Remote_RDMA_Slot(ibv_mr *&remote_mr) {
     // find the first empty SSTable Placeholder's iterator, iterator->first is ibv_mr*
     // second is the bool vector for this ibv_mr*. Each ibv_mr is the origin block get
     // from the remote memory. The memory was divided into chunks with size == SSTable size.
-    long long int sst_index = ptr->second->allocate_memory_slot();
+    int sst_index = ptr->second->allocate_memory_slot();
     if (sst_index >= 0) {
       *(remote_mr) = *((ptr->second)->get_mr_ori());
         remote_mr->addr = static_cast<void*>(

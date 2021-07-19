@@ -155,7 +155,7 @@ class In_Use_Array{
       : element_size_(size), chunk_size_(chunk_size), mr_ori_(mr_ori){
     // in_use_ = new std::atomic<bool>[element_size_];
     // in_use_ = new std::queue<int>;
-    std::queue<int> in_use_;
+    std::queue<int>* in_use_;
     //OLD
     // for (size_t i = 0; i < element_size_; ++i){
     //   in_use_[i] = false;

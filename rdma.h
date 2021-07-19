@@ -172,7 +172,7 @@ class In_Use_Array{
 
   // }
   In_Use_Array(size_t size, size_t chunk_size, ibv_mr* mr_ori, std::queue<int>* in_use)
-      : element_size_(size), chunk_size_(chunk_size), in_use_(in_use), mr_ori_(mr_ori){
+      : element_size_(size), chunk_size_(chunk_size), in_use_, mr_ori_(mr_ori){
 
   }
 

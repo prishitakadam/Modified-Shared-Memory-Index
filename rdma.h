@@ -38,7 +38,7 @@
 #include <thread_local.h>
 #include<queue>
 #include<util/mutexlock.h>
-// std::mutex startmtx;
+std::mutex startmtx;
 using namespace std;
 //#include <util/thread_local.h>
 //#ifdef __cplusplus
@@ -52,7 +52,6 @@ using namespace std;
 
 
 #if __BYTE_ORDER == __LITTLE_ENDIAN
-// std::queue<int>* in_use_;
 //template <typename T>
 //  static inline T hton(T u) {
 //  static_assert (CHAR_BIT == 8, "CHAR_BIT != 8");
@@ -156,7 +155,6 @@ class In_Use_Array{
       : element_size_(size), chunk_size_(chunk_size), mr_ori_(mr_ori){
     // in_use_ = new std::atomic<bool>[element_size_];
     in_use_ = new std::queue<int>;
-    // std::queue<int>* in_use_;
     //OLD
     // for (size_t i = 0; i < element_size_; ++i){
     //   in_use_[i] = false;
@@ -203,8 +201,8 @@ class In_Use_Array{
 SpinMutex spinlock;
 int allocate_memory_slot(){
     spinlock.lock();
-    // std::unique_lock<std::mutex> start_lock(startmtx);
     if(!in_use_->empty()){
+
       int index = in_use_->front();
       in_use_->pop();
       spinlock.unlock();
@@ -227,7 +225,6 @@ int allocate_memory_slot(){
 //   }
 
 bool deallocate_memory_slot(int index) {
-    // std::unique_lock<std::mutex> start_lock(startmtx);
     spinlock.lock();
     in_use_->push(index);
     spinlock.unlock();

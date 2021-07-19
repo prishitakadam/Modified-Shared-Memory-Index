@@ -247,7 +247,7 @@ bool deallocate_memory_slot(int index) {
   // std::atomic<bool>* get_inuse_table(){
   //   return in_use_;
   // }
-   std::queue<int>* get_inuse_table(){
+   std::queue<unsigned int>* get_inuse_table(){
     return in_use_;
   }
 //  void deserialization(char*& temp, int& size){

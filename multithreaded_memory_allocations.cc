@@ -2,7 +2,7 @@
 #include "rdma.h"
 
 size_t thread_num;
-size_t j_size = 100;
+// size_t j_size = 2000;
 bool mem_test_start = false;
 size_t mem_thread_ready_num = 0;
 size_t mem_thread_finish_num = 0;
@@ -11,7 +11,7 @@ std::mutex mem_startmtx;
 std::mutex mem_finishmtx;
 std::condition_variable mem_cv;
 
-void mulithreaded_memory_allocations(RDMA_Manager *rdma_manager, size_t i, size_t msg_size){
+void mulithreaded_memory_allocations(RDMA_Manager *rdma_manager, ibv_mr **remote_chunks, ibv_mr **local_chunks, size_t msg_size){
     std::unique_lock<std::mutex> mem_lck_start(mem_startmtx);
     mem_thread_ready_num++;
     std::cout<<"Created "<<mem_thread_ready_num<< "\n";
@@ -26,15 +26,15 @@ void mulithreaded_memory_allocations(RDMA_Manager *rdma_manager, size_t i, size_
     mem_lck_start.unlock();
 
     //Allocate in main function
-    ibv_mr* RDMA_local_chunks[thread_num][j_size];
-    ibv_mr* RDMA_remote_chunks[thread_num][j_size];
+    // ibv_mr* RDMA_local_chunks[thread_num][j_size];
+    // ibv_mr* RDMA_remote_chunks[thread_num][j_size];
     
-    for(size_t j= 0; j< j_size; j++){//j should be bigger value
-        rdma_manager->Allocate_Remote_RDMA_Slot(RDMA_remote_chunks[i][j]);
+    for(size_t j= 0; j< 1000; j++){//j should be bigger value
+        rdma_manager->Allocate_Remote_RDMA_Slot(remote_chunks[j]);
 
-        rdma_manager->Allocate_Local_RDMA_Slot(RDMA_local_chunks[i][j], std::string("test"));
+        rdma_manager->Allocate_Local_RDMA_Slot(local_chunks[j], std::string("test"));
         // size_t msg_size = read_block_size;
-        memset(RDMA_local_chunks[i][j]->addr,1,msg_size);
+        memset(local_chunks[j]->addr,1,msg_size);
     }
 
 
@@ -94,7 +94,9 @@ int main(){
 
     //    std::cout << "block size:\r" << std::endl;
 //    std::cin >> read_block_size;
-    read_block_size = 1048576;
+    // read_block_size = 1048576;
+    read_block_size = 4096;
+    // read_block_size = 4096;
     //  table_size = read_block_size+64;
 
     std::cout << "Thread Num:\r" << std::endl;
@@ -106,13 +108,15 @@ int main(){
 
     rdma_manager->Mempool_initialize(std::string("test"), read_block_size);
     
+    ibv_mr* RDMA_local_chunks[thread_num][1000];
+    ibv_mr* RDMA_remote_chunks[thread_num][1000];
     
     long int starts;
     long int ends;
     int iteration = 100;
     std::thread* mem_thread_object[thread_num];
     for(size_t i = 0; i < thread_num; i++){
-        mem_thread_object[i] = new std::thread(mulithreaded_memory_allocations, rdma_manager, i, read_block_size);
+        mem_thread_object[i] = new std::thread(mulithreaded_memory_allocations, rdma_manager, RDMA_remote_chunks[i], RDMA_local_chunks[i], read_block_size);
         mem_thread_object[i]->detach();
     }
 
@@ -133,7 +137,7 @@ int main(){
     ends  = std::chrono::high_resolution_clock::now().time_since_epoch().count();
     printf("Thread has finished \n");
     mem_l_e.unlock();
-    double throughput = ((double)j_size*thread_num)/(ends-starts);
+    double throughput = ((double)1000*thread_num)/(ends-starts);
     // double bandwidth = ((double)read_block_size*thread_num*iteration) / (ends-starts) * 1000;
     // double latency = ((double) (ends-starts)) / (thread_num * iteration);
     std::cout << "Throughput is " << throughput << "M/s" << std::endl;
